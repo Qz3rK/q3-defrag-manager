@@ -20,6 +20,8 @@ using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.Timers;
 using System.ComponentModel;
+using System.Windows.Navigation;
+using System.Diagnostics;
 
 namespace DefragManager
 {
@@ -1858,6 +1860,23 @@ namespace DefragManager
             catch (Exception ex)
             {
                 LogThumbnailMessage($"Error cleaning up thumbnail cache: {ex.Message}");
+            }
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = e.Uri.AbsoluteUri,
+                    UseShellExecute = true
+                });
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось открыть ссылку: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
