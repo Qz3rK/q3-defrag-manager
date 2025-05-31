@@ -9,7 +9,7 @@
         xmlns:local="clr-namespace:DefragManager"
         mc:Ignorable="d"
         Title="DeFRaG Manager" 
-        Height="590" 
+        Height="595" 
         Width="800"
         MinWidth="800"
         MaxWidth="800"
@@ -544,31 +544,52 @@
                     <RowDefinition Height="*"/>  <!-- Контент -->
                 </Grid.RowDefinitions>
                 
-                <!-- Панель заголовка -->
-                <Border Grid.Row="0" 
-                        Background="#1E1E1E" 
-                        CornerRadius="5,5,0,0"
-                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                    <Grid>
-                        <TextBlock Text="{Binding WindowTitle}" 
-                                   Foreground="White"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0"
-                                   FontFamily="{StaticResource EternalUiFont}"
-                                   TextOptions.TextFormattingMode="Display"
-                                   TextOptions.TextRenderingMode="ClearType"
-                                   RenderOptions.ClearTypeHint="Enabled"
-                                   UseLayoutRounding="True"
-                                   SnapsToDevicePixels="False"/>
+            <!-- Панель заголовка -->
+            <Border Grid.Row="0" 
+                    Background="#1E1E1E" 
+                    CornerRadius="5,5,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <TextBlock 
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0"
+                        FontSize="14"
+                        TextOptions.TextFormattingMode="Ideal"
+                        TextOptions.TextRenderingMode="ClearType"
+                        TextOptions.TextHintingMode="Animated"
+                        RenderOptions.ClearTypeHint="Enabled"
+                        UseLayoutRounding="True">
                         
-                        <!-- Кнопки управления окном -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="─" Style="{StaticResource TitleButtonStyle}" Click="MinimizeWindow"/>
-                            <Button Content="□" Style="{StaticResource TitleButtonStyle}" Click="MaximizeWindow"/>
-                            <Button Content="✕" Style="{StaticResource TitleButtonStyle}" Click="CloseWindow"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                        <!-- Часть с кастомным шрифтом -->
+                        <Run 
+                            Text="DeFRaG Manager" 
+                            FontFamily="{StaticResource EternalUiFont}"
+                            Foreground="White"/>
+                        
+                        <!-- Разделитель -->
+                        <Run 
+                            Text=" | " 
+                            FontFamily="Segoe UI" 
+                            FontWeight="Bold"
+                            Foreground="White"/>
+
+                        <!-- Ник (системный шрифт) -->
+                        <Run 
+                            Text="{Binding WindowTitle}" 
+                            FontFamily="Segoe UI" 
+                            FontWeight="Bold"
+                            Foreground="White"/>
+                    </TextBlock>
+                    
+                    <!-- Кнопки управления окном -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="─" Style="{StaticResource TitleButtonStyle}" Click="MinimizeWindow"/>
+                        <Button Content="□" Style="{StaticResource TitleButtonStyle}" Click="MaximizeWindow"/>
+                        <Button Content="✕" Style="{StaticResource TitleButtonStyle}" Click="CloseWindow"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
                 
                 <!-- Основное содержимое -->
                 <Border Grid.Row="1" CornerRadius="0,0,5,5">
@@ -1095,9 +1116,6 @@
                                         <Run Text="DeFRaG mod updates: "/>
                                         <Hyperlink NavigateUri="https://q3defrag.org/files/defrag" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://q3defrag.org/files/defrag</Hyperlink>
                                     </TextBlock>
-
-                                    <!-- Separator -->
-                                    <Border Height="1" Background="#FF3A3A3A" Margin="5,15,5,5"/>
 
                                     <!-- Copyright -->
                                     <TextBlock Margin="5,5,5,0" FontSize="9" HorizontalAlignment="Right"

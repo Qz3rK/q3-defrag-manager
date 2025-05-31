@@ -118,6 +118,7 @@ namespace DefragManager
         {
             InitializeComponent();
             this.DataContext = this;
+            WindowTitle = _playerName;
 
             CompositionTarget.Rendering += (s, e) => 
             {
@@ -502,6 +503,7 @@ namespace DefragManager
                 if (File.Exists(namePath))
                 {
                     _playerName = File.ReadAllText(namePath).Trim();
+                    WindowTitle = _playerName; // Обновляем WindowTitle
                     LogSettingsMessage($"Loaded player name: '{_playerName}'");
                     Dispatcher.Invoke(() => 
                     {
@@ -539,6 +541,7 @@ namespace DefragManager
                 
                 // Получаем значения из UI
                 _playerName = PlayerNameBox?.Text?.Trim() ?? "";
+                WindowTitle = _playerName;
                 _enginePath = EnginePathBox?.Text?.Trim() ?? "oDFe.x64.exe";
                 
                 // Проверка обязательного поля (имени игрока)
@@ -1624,9 +1627,19 @@ namespace DefragManager
 
         }
 
+        private string _windowTitle;
+
         public string WindowTitle
         {
-            get => $"DeFRaG Manager ({_playerName})";
+            get => _windowTitle;
+            set
+            {
+                if (_windowTitle != value)
+                {
+                    _windowTitle = value;
+                    OnPropertyChanged(nameof(WindowTitle));
+                }
+            }
         }
 
         private bool _isWindowActive = true;
