@@ -71,6 +71,9 @@ namespace DefragManager
         private const int DemoCacheDuration = 300;
         private const int SearchDelay = 500;
 
+        private const int ThumbnailWidth = 200;
+        private const int ThumbnailHeight = 100;
+
         private string _playerName = "";
         private List<MapInfo> _allMaps = new();
         private List<MapInfo> _filteredMaps = new();
@@ -1553,15 +1556,36 @@ namespace DefragManager
                         {
                             using (var fileStream = new FileStream(tempFile, FileMode.Open, FileAccess.Read))
                             {
-                                var bitmap = new BitmapImage();
-                                bitmap.BeginInit();
-                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                bitmap.StreamSource = fileStream;
-                                bitmap.EndInit();
-                                bitmap.Freeze();
+                                var originalBitmap = new BitmapImage();
+                                originalBitmap.BeginInit();
+                                originalBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                originalBitmap.StreamSource = fileStream;
+                                originalBitmap.EndInit();
                                 
-                                map.Thumbnail = bitmap;
-                                _thumbnailCache[map.Name] = bitmap; // Добавляем в кеш
+                                // Создаем уменьшенную версию изображения
+                                var resizedBitmap = new TransformedBitmap(
+                                    originalBitmap,
+                                    new ScaleTransform(
+                                        ThumbnailWidth / (double)originalBitmap.PixelWidth,
+                                        ThumbnailHeight / (double)originalBitmap.PixelHeight));
+                                
+                                var finalBitmap = new BitmapImage();
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    var encoder = new JpegBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(resizedBitmap));
+                                    encoder.Save(memoryStream);
+                                    
+                                    memoryStream.Position = 0;
+                                    finalBitmap.BeginInit();
+                                    finalBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                    finalBitmap.StreamSource = memoryStream;
+                                    finalBitmap.EndInit();
+                                }
+                                
+                                finalBitmap.Freeze();
+                                map.Thumbnail = finalBitmap;
+                                _thumbnailCache[map.Name] = finalBitmap; // Добавляем в кеш
                                 
                                 if (MapsGrid.ItemContainerGenerator.ContainerFromItem(map) is DataGridRow container)
                                     container.InvalidateVisual();
@@ -1852,6 +1876,8 @@ namespace DefragManager
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
+                bitmap.DecodePixelWidth = ThumbnailWidth; // Устанавливаем ширину для декодирования
+                bitmap.DecodePixelHeight = ThumbnailHeight; // Устанавливаем высоту для декодирования
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.StreamSource = ms;
                 bitmap.EndInit();
