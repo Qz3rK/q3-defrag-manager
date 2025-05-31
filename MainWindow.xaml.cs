@@ -729,6 +729,13 @@ namespace DefragManager
                     UpdateBestTimes(map);
                 }
 
+                // Для случайных карт - сначала загружаем превью, потом обновляем UI
+                if (string.IsNullOrEmpty(searchText))
+                {
+                    await Task.Run(() => LoadAllThumbnails());
+                    await Task.Delay(500); // Короткая задержка для стабильности
+                }
+
                 await Dispatcher.Invoke(async () =>
                 {
                     MapsGrid.ItemsSource = null;
