@@ -724,6 +724,16 @@ namespace DefragManager
                 File.WriteAllLines(Path.Combine("mgrdata", "mapscache.dat"), _allMaps.Select(m => m.Name));
                 File.WriteAllLines(Path.Combine("mgrdata", "thumbnails.dat"), _mapThumbnails.Select(kv => $"{kv.Key}|{kv.Value}"));
                 
+                // Загружаем кеш миниатюр после сканирования
+                var thumbnailCache = LoadThumbnailCache();
+                foreach (var map in _allMaps)
+                {
+                    if (thumbnailCache.TryGetValue(map.Name, out var thumb))
+                    {
+                        map.Thumbnail = thumb;
+                    }
+                }
+                
                 // Очищаем кеш от миниатюр карт, которых больше нет
                 CleanupOldThumbnails();
 
@@ -1606,9 +1616,7 @@ namespace DefragManager
             
             if (!File.Exists(Path.Combine("mgrdata", "name.dat")))
                 File.WriteAllText(Path.Combine("mgrdata", "name.dat"), "SET_YOUR_DF_NAME");
-                
-            if (!File.Exists(Path.Combine("mgrdata", "settings.dat")))
-                File.WriteAllText(Path.Combine("mgrdata", "settings.dat"), "Dark");
+
         }
 
         public string WindowTitle
