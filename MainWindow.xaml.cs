@@ -470,8 +470,6 @@ namespace DefragManager
             {
                 bitmap?.Freeze();
             }
-            _thumbnailCache.Clear();
-
         }
 
         private void DemoCheckTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -702,6 +700,9 @@ namespace DefragManager
                 File.WriteAllLines(Path.Combine("mgrdata", "mapscache.dat"), _allMaps.Select(m => m.Name));
                 File.WriteAllLines(Path.Combine("mgrdata", "thumbnails.dat"), _mapThumbnails.Select(kv => $"{kv.Key}|{kv.Value}"));
                 
+                // Очищаем кеш от миниатюр карт, которых больше нет
+                CleanupOldThumbnails();
+
                 LogThumbnailMessage($"Scan completed. Found {_allMaps.Count} maps and {_mapThumbnails.Count} thumbnails.");
             }
             catch (Exception ex)
@@ -1763,8 +1764,28 @@ namespace DefragManager
         {
             try
             {
-                var cacheLines = _thumbnailCache.Select(kv => 
-                    $"{kv.Key}|{Convert.ToBase64String(ImageToBytes(kv.Value))}");
+                // Загружаем существующий кеш из файла
+                var existingCache = new Dictionary<string, string>();
+                if (File.Exists(Path.Combine("mgrdata", "thumbnail_cache.dat")))
+                {
+                    foreach (var line in File.ReadAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat")))
+                    {
+                        var parts = line.Split(new[] { '|' }, 2);
+                        if (parts.Length == 2)
+                        {
+                            existingCache[parts[0]] = parts[1];
+                        }
+                    }
+                }
+
+                // Добавляем или обновляем записи из текущего кеша
+                foreach (var kv in _thumbnailCache)
+                {
+                    existingCache[kv.Key] = Convert.ToBase64String(ImageToBytes(kv.Value));
+                }
+
+                // Сохраняем объединенный кеш
+                var cacheLines = existingCache.Select(kv => $"{kv.Key}|{kv.Value}");
                 File.WriteAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"), cacheLines);
             }
             catch (Exception ex)
@@ -1785,10 +1806,17 @@ namespace DefragManager
                         var parts = line.Split(new[] { '|' }, 2);
                         if (parts.Length == 2)
                         {
-                            var bytes = Convert.FromBase64String(parts[1]);
-                            var bitmap = BytesToImage(bytes);
-                            bitmap.Freeze();
-                            cache[parts[0]] = bitmap;
+                            try
+                            {
+                                var bytes = Convert.FromBase64String(parts[1]);
+                                var bitmap = BytesToImage(bytes);
+                                bitmap.Freeze();
+                                cache[parts[0]] = bitmap;
+                            }
+                            catch (Exception ex)
+                            {
+                                LogThumbnailMessage($"Error loading thumbnail for {parts[0]}: {ex.Message}");
+                            }
                         }
                     }
                 }
@@ -1824,6 +1852,33 @@ namespace DefragManager
             }
         }
 
+        private void CleanupOldThumbnails()
+        {
+            try
+            {
+                if (!File.Exists(Path.Combine("mgrdata", "thumbnail_cache.dat"))) return;
+
+                var lines = File.ReadAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"));
+                var activeMaps = new HashSet<string>(_allMaps.Select(m => m.Name));
+                
+                var updatedLines = lines
+                    .Where(line => 
+                    {
+                        var parts = line.Split(new[] { '|' }, 2);
+                        return parts.Length == 2 && activeMaps.Contains(parts[0]);
+                    })
+                    .ToList();
+
+                if (updatedLines.Count < lines.Length)
+                {
+                    File.WriteAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"), updatedLines);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogThumbnailMessage($"Error cleaning up thumbnail cache: {ex.Message}");
+            }
+        }
 
     }
 }
