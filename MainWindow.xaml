@@ -17,7 +17,12 @@
         AllowsTransparency="True"
         Background="Transparent"
         ResizeMode="CanResize"
-        SnapsToDevicePixels="True"
+        SnapsToDevicePixels="False"
+
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        RenderOptions.ClearTypeHint="Enabled"
+
         UseLayoutRounding="True">
     
     <Window.Resources>
@@ -25,8 +30,41 @@
         <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <FontFamily x:Key="EternalUiFont">pack://application:,,,/Assets/Fonts/#Eternal UI</FontFamily>
 
-        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}"/>
-        <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}"/>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect 
+                        Color="#FF000000"
+                        Direction="315"
+                        ShadowDepth="2"
+                        BlurRadius="0"
+                        Opacity="1"
+                        RenderingBias="Quality"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DropShadowEffect x:Key="ShadowEffect"
+                  Color="#FF000000"
+                  Direction="315"
+                  ShadowDepth="2"
+                  BlurRadius="0"
+                  Opacity="1"
+                  RenderingBias="Quality"/>
+
+        <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
+        </Style>
         <Style TargetType="{x:Type Control}" BasedOn="{StaticResource {x:Type Control}}"/>
 
         <Style TargetType="{x:Type DataGridRow}">
@@ -62,15 +100,41 @@
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Padding" Value="5"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
+            <!-- Добавленный ContentTemplate -->
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"
+                                   Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                   Effect="{StaticResource ShadowEffect}"
+                                   TextOptions.TextFormattingMode="Display"
+                                   TextOptions.TextRenderingMode="ClearType"
+                                   RenderOptions.ClearTypeHint="Enabled"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="1"
-                                CornerRadius="2">
+                                CornerRadius="2"
+                                TextOptions.TextFormattingMode="Display"
+                                TextOptions.TextRenderingMode="ClearType"
+                                RenderOptions.ClearTypeHint="Enabled"
+                                UseLayoutRounding="True"
+                                SnapsToDevicePixels="False">
                             <ContentPresenter HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
+                                            VerticalAlignment="Center"
+                                            TextOptions.TextFormattingMode="Display"
+                                            TextOptions.TextRenderingMode="ClearType"
+                                            RenderOptions.ClearTypeHint="Enabled"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -95,9 +159,17 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="1"
-                                CornerRadius="2">
+                                CornerRadius="2"
+                                TextOptions.TextFormattingMode="Display"
+                                TextOptions.TextRenderingMode="ClearType"
+                                RenderOptions.ClearTypeHint="Enabled"
+                                UseLayoutRounding="True"
+                                SnapsToDevicePixels="False">
                             <ContentPresenter HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
+                                            VerticalAlignment="Center"
+                                            TextOptions.TextFormattingMode="Display"
+                                            TextOptions.TextRenderingMode="ClearType"
+                                            RenderOptions.ClearTypeHint="Enabled"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -162,17 +234,31 @@
             <!-- ... остальные свойства ... -->
             <Setter Property="BorderBrush" Value="Black" />
             <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
         </Style>
         
         <Style TargetType="DataGridCell">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DataGridCell">
                         <Grid Background="{TemplateBinding Background}">
-                            <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                            <ContentPresenter VerticalAlignment="Stretch" 
+                                HorizontalAlignment="Stretch"
+                                TextOptions.TextFormattingMode="Display"
+                                TextOptions.TextRenderingMode="ClearType"
+                                RenderOptions.ClearTypeHint="Enabled"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -214,18 +300,33 @@
             <Setter Property="Padding" Value="5"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CaretBrush" Value="{DynamicResource TextColor}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
         </Style>
 
         <Style TargetType="TabControl">
             <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
             <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
         </Style>
 
         <Style TargetType="TabItem">
             <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
             <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -239,7 +340,20 @@
                                                 VerticalAlignment="Center"
                                                 HorizontalAlignment="Center"
                                                 ContentSource="Header"
-                                                Margin="12,2,12,2"/>
+                                                Margin="12,2,12,2"
+                                                TextOptions.TextFormattingMode="Display"
+                                                TextOptions.TextRenderingMode="ClearType"
+                                                RenderOptions.ClearTypeHint="Enabled">
+                                    <ContentPresenter.Effect>
+                                        <DropShadowEffect 
+                                            Color="#FF000000"
+                                            Direction="315"
+                                            ShadowDepth="2"
+                                            BlurRadius="0"
+                                            Opacity="1"
+                                            RenderingBias="Quality"/>
+                                    </ContentPresenter.Effect>
+                                </ContentPresenter>
                             </Border>
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -261,7 +375,12 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollViewer">
-                        <Grid>
+                        <Grid
+                            TextOptions.TextFormattingMode="Display"
+                            TextOptions.TextRenderingMode="ClearType"
+                            RenderOptions.ClearTypeHint="Enabled"
+                            UseLayoutRounding="True"
+                            SnapsToDevicePixels="False">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -350,7 +469,10 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                TextOptions.TextFormattingMode="Display"
+                                TextOptions.TextRenderingMode="ClearType"
+                                RenderOptions.ClearTypeHint="Enabled"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -432,7 +554,12 @@
                                    Foreground="White"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"
-                                   FontFamily="{StaticResource EternalUiFont}"/>
+                                   FontFamily="{StaticResource EternalUiFont}"
+                                   TextOptions.TextFormattingMode="Display"
+                                   TextOptions.TextRenderingMode="ClearType"
+                                   RenderOptions.ClearTypeHint="Enabled"
+                                   UseLayoutRounding="True"
+                                   SnapsToDevicePixels="False"/>
                         
                         <!-- Кнопки управления окном -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -484,6 +611,22 @@
                                                         <Setter Property="Padding" Value="10,0"/>
                                                         <Setter Property="VerticalAlignment" Value="Center"/>
                                                         <Setter Property="FontFamily" Value="{StaticResource EternalUiFont}"/>
+                                                        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                                                        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+                                                        <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+                                                        <Setter Property="UseLayoutRounding" Value="True"/>
+                                                        <Setter Property="SnapsToDevicePixels" Value="False"/>
+                                                        <Setter Property="Effect">
+                                                            <Setter.Value>
+                                                                <DropShadowEffect 
+                                                                    Color="#FF000000"
+                                                                    Direction="315"
+                                                                    ShadowDepth="2"
+                                                                    BlurRadius="0"
+                                                                    Opacity="1"
+                                                                    RenderingBias="Quality"/>
+                                                            </Setter.Value>
+                                                        </Setter>
                                                     </Style>
                                                 </DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
@@ -516,7 +659,17 @@
                                                                 Background="Transparent"
                                                                 BorderThickness="0"
                                                                 FontSize="16"
-                                                                Padding="0"/>
+                                                                Padding="0">
+                                                            <Button.Effect>
+                                                                <DropShadowEffect 
+                                                                    Color="#FF000000"
+                                                                    Direction="315"
+                                                                    ShadowDepth="2"
+                                                                    BlurRadius="0"
+                                                                    Opacity="1"
+                                                                    RenderingBias="Quality"/>
+                                                            </Button.Effect>
+                                                        </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
@@ -528,10 +681,12 @@
                                                                 Style="{StaticResource LaunchButtonStyle}">
                                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                                 <TextBlock Text="VQ3" 
-                                                                         Foreground="{StaticResource VQ3TextColor}"/>
+                                                                         Foreground="{StaticResource VQ3TextColor}"
+                                                                         Effect="{StaticResource ShadowEffect}"/>
                                                                 <TextBlock Text=" ▶" 
                                                                          Foreground="{StaticResource VQ3TextColor}"
-                                                                         Margin="3,0,0,0"/>
+                                                                         Margin="3,0,0,0"
+                                                                         Effect="{StaticResource ShadowEffect}"/>
                                                             </StackPanel>
                                                         </Button>
                                                     </DataTemplate>
@@ -545,10 +700,12 @@
                                                                 Style="{StaticResource LaunchButtonStyle}">
                                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                                 <TextBlock Text="CPM" 
-                                                                         Foreground="{StaticResource CPMTextColor}"/>
+                                                                         Foreground="{StaticResource CPMTextColor}"
+                                                                         Effect="{StaticResource ShadowEffect}"/>
                                                                 <TextBlock Text=" ▶" 
                                                                          Foreground="{StaticResource CPMTextColor}"
-                                                                         Margin="3,0,0,0"/>
+                                                                         Margin="3,0,0,0"
+                                                                         Effect="{StaticResource ShadowEffect}"/>
                                                             </StackPanel>
                                                         </Button>
                                                     </DataTemplate>
@@ -584,6 +741,22 @@
                                                     <Setter Property="Padding" Value="10,0"/>
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                                     <Setter Property="FontFamily" Value="{StaticResource EternalUiFont}"/>
+                                                    <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                                                    <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+                                                    <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+                                                    <Setter Property="UseLayoutRounding" Value="True"/>
+                                                    <Setter Property="SnapsToDevicePixels" Value="False"/>
+                                                    <Setter Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect 
+                                                                Color="#FF000000"
+                                                                Direction="315"
+                                                                ShadowDepth="2"
+                                                                BlurRadius="0"
+                                                                Opacity="1"
+                                                                RenderingBias="Quality"/>
+                                                        </Setter.Value>
+                                                    </Setter>
                                                 </Style>
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
@@ -616,7 +789,17 @@
                                                             Background="Transparent"
                                                             BorderThickness="0"
                                                             FontSize="16"
-                                                            Padding="0"/>
+                                                            Padding="0">
+                                                        <Button.Effect>
+                                                            <DropShadowEffect 
+                                                                Color="#FF000000"
+                                                                Direction="315"
+                                                                ShadowDepth="2"
+                                                                BlurRadius="0"
+                                                                Opacity="1"
+                                                                RenderingBias="Quality"/>
+                                                        </Button.Effect>
+                                                    </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -628,10 +811,12 @@
                                                             Style="{StaticResource LaunchButtonStyle}">
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                             <TextBlock Text="VQ3" 
-                                                                     Foreground="{StaticResource VQ3TextColor}"/>
+                                                                     Foreground="{StaticResource VQ3TextColor}"
+                                                                     Effect="{StaticResource ShadowEffect}"/>
                                                             <TextBlock Text=" ▶" 
                                                                      Foreground="{StaticResource VQ3TextColor}"
-                                                                     Margin="3,0,0,0"/>
+                                                                     Margin="3,0,0,0"
+                                                                     Effect="{StaticResource ShadowEffect}"/>
                                                         </StackPanel>
                                                     </Button>
                                                 </DataTemplate>
@@ -645,10 +830,11 @@
                                                             Style="{StaticResource LaunchButtonStyle}">
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                             <TextBlock Text="CPM" 
-                                                                     Foreground="{StaticResource CPMTextColor}"/>
+                                                                     Foreground="{StaticResource CPMTextColor}" Effect="{StaticResource ShadowEffect}"/>
                                                             <TextBlock Text=" ▶" 
-                                                                     Foreground="{StaticResource CPMTextColor}"
-                                                                     Margin="3,0,0,0"/>
+                                                                     Foreground="{StaticResource CPMTextColor}" 
+                                                                     Margin="3,0,0,0" 
+                                                                     Effect="{StaticResource ShadowEffect}"/>
                                                         </StackPanel>
                                                     </Button>
                                                 </DataTemplate>
@@ -683,6 +869,22 @@
                                                     <Setter Property="Padding" Value="10,0"/>
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                                     <Setter Property="FontFamily" Value="{StaticResource EternalUiFont}"/>
+                                                    <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                                                    <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+                                                    <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+                                                    <Setter Property="UseLayoutRounding" Value="True"/>
+                                                    <Setter Property="SnapsToDevicePixels" Value="False"/>
+                                                    <Setter Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect 
+                                                                Color="#FF000000"
+                                                                Direction="315"
+                                                                ShadowDepth="2"
+                                                                BlurRadius="0"
+                                                                Opacity="1"
+                                                                RenderingBias="Quality"/>
+                                                        </Setter.Value>
+                                                    </Setter>
                                                 </Style>
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
@@ -715,7 +917,17 @@
                                                             Background="Transparent"
                                                             BorderThickness="0"
                                                             FontSize="16"
-                                                            Padding="0"/>
+                                                            Padding="0">
+                                                        <Button.Effect>
+                                                            <DropShadowEffect 
+                                                                Color="#FF000000"
+                                                                Direction="315"
+                                                                ShadowDepth="2"
+                                                                BlurRadius="0"
+                                                                Opacity="1"
+                                                                RenderingBias="Quality"/>
+                                                        </Button.Effect>
+                                                    </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -727,10 +939,12 @@
                                                             Style="{StaticResource LaunchButtonStyle}">
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                             <TextBlock Text="VQ3" 
-                                                                     Foreground="{StaticResource VQ3TextColor}"/>
+                                                                     Foreground="{StaticResource VQ3TextColor}"
+                                                                     Effect="{StaticResource ShadowEffect}"/>
                                                             <TextBlock Text=" ▶" 
                                                                      Foreground="{StaticResource VQ3TextColor}"
-                                                                     Margin="3,0,0,0"/>
+                                                                     Margin="3,0,0,0"
+                                                                     Effect="{StaticResource ShadowEffect}"/>
                                                         </StackPanel>
                                                     </Button>
                                                 </DataTemplate>
@@ -744,10 +958,11 @@
                                                             Style="{StaticResource LaunchButtonStyle}">
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                             <TextBlock Text="CPM" 
-                                                                     Foreground="{StaticResource CPMTextColor}"/>
+                                                                     Foreground="{StaticResource CPMTextColor}" Effect="{StaticResource ShadowEffect}"/>
                                                             <TextBlock Text=" ▶" 
-                                                                     Foreground="{StaticResource CPMTextColor}"
-                                                                     Margin="3,0,0,0"/>
+                                                                     Foreground="{StaticResource CPMTextColor}" 
+                                                                     Margin="3,0,0,0"
+                                                                     Effect="{StaticResource ShadowEffect}"/>
                                                         </StackPanel>
                                                     </Button>
                                                 </DataTemplate>
@@ -759,7 +974,12 @@
                         </TabItem>
                         <TabItem Header="Settings">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                                <StackPanel Margin="10">
+                                <StackPanel Margin="10"
+                                    TextOptions.TextFormattingMode="Display"
+                                    TextOptions.TextRenderingMode="ClearType"
+                                    RenderOptions.ClearTypeHint="Enabled"
+                                    UseLayoutRounding="True"
+                                    SnapsToDevicePixels="False">
                                     <!-- Player Name Section -->
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -776,7 +996,12 @@
                                     </Grid>
                                     <TextBlock Margin="5,0,5,15" FontSize="10" TextWrapping="Wrap"
                                               FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
-                                              Foreground="#FFD0D0D0">
+                                              Foreground="#FFD0D0D0"
+                                              TextOptions.TextFormattingMode="Display"
+                                              TextOptions.TextRenderingMode="ClearType"
+                                              RenderOptions.ClearTypeHint="Enabled"
+                                              UseLayoutRounding="True"
+                                              SnapsToDevicePixels="False">
                                         <Run Text="For correct scanning of personal records on maps, enter the nickname that matches the name specified in the 'df_name' parameter in the DeFRaG configuration."/>
                                         <LineBreak/>
                                         <Run Text="This name should be specified without using color codes."/>
@@ -805,7 +1030,12 @@
                                     </Grid>
                                     <TextBlock Margin="5,0,5,15" FontSize="10" TextWrapping="Wrap"
                                               FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
-                                              Foreground="#FFD0D0D0">
+                                              Foreground="#FFD0D0D0"
+                                              TextOptions.TextFormattingMode="Display"
+                                              TextOptions.TextRenderingMode="ClearType"
+                                              RenderOptions.ClearTypeHint="Enabled"
+                                              UseLayoutRounding="True"
+                                              SnapsToDevicePixels="False">
                                         <Run Text="In this field, specify the game engine you use to run DeFRaG."/>
                                         <LineBreak/>
                                         <Run Text="Supported engines:"/>
@@ -874,7 +1104,7 @@
                                               FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
                                               Foreground="#FFD0D0D0">
                                         <Run Text="Copyright © 2025 Qz3rK | "/>
-                                        <Hyperlink NavigateUri="https://github.com/Qz3rK" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Qz3rK</Hyperlink><Run Text=" | DeFRaG Manager (v1.0.0)"/>
+                                        <Hyperlink NavigateUri="https://github.com/Qz3rK" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Qz3rK</Hyperlink><Run Text=" | DeFRaG Manager (v1.1.0)"/>
                                     </TextBlock>
                                 </StackPanel>
                             </ScrollViewer>
