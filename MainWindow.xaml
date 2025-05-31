@@ -76,7 +76,7 @@
         <SolidColorBrush x:Key="VQ3HoverColor" Color="#FF8A4A4A"/> <!-- Насыщенный светло-красный -->
         <SolidColorBrush x:Key="CPMHoverColor" Color="#FF4A4A8A"/> <!-- Насыщенный светло-синий -->
         <SolidColorBrush x:Key="GreenHoverColor" Color="#FF4A8A4A"/> <!-- Насыщенный светло-зеленый -->
-        <SolidColorBrush x:Key="TimeHoverColor" Color="#131313"/> <!-- Почти черный -->
+        <SolidColorBrush x:Key="TimeHoverColor" Color="#505050"/> <!-- Мокрый асфальт -->
 
         <!-- Яркие цвета текста для кнопок -->
         <SolidColorBrush x:Key="VQ3TextColor" Color="#FFD44A4A"/> <!-- Яркий красный -->
@@ -95,8 +95,8 @@
         <SolidColorBrush x:Key="ScrollBarArrow" Color="#808080"/>
         
         <Style x:Key="TimeButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+            <Setter Property="Background" Value="#131313"/>
+            <Setter Property="Foreground" Value="#00FFFF"/>
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Padding" Value="5"/>
@@ -628,12 +628,15 @@
                                                                 Width="*">
                                                 <DataGridTextColumn.ElementStyle>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+                                                        <Setter Property="Foreground" Value="#FFE5E5E5"/>
                                                         <Setter Property="Padding" Value="10,0"/>
                                                         <Setter Property="VerticalAlignment" Value="Center"/>
-                                                        <Setter Property="FontFamily" Value="{StaticResource EternalUiFont}"/>
-                                                        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                                                        <Setter Property="FontFamily" Value="Segoe UI"/>
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                        <Setter Property="FontSize" Value="14"/>                                                      
+                                                        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
                                                         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+                                                        <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
                                                         <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
                                                         <Setter Property="UseLayoutRounding" Value="True"/>
                                                         <Setter Property="SnapsToDevicePixels" Value="False"/>
@@ -758,12 +761,15 @@
                                                             Width="*">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+                                                    <Setter Property="Foreground" Value="#FFE5E5E5"/>
                                                     <Setter Property="Padding" Value="10,0"/>
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
-                                                    <Setter Property="FontFamily" Value="{StaticResource EternalUiFont}"/>
-                                                    <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                                                    <Setter Property="FontFamily" Value="Segoe UI"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                    <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
                                                     <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+                                                    <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
                                                     <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
                                                     <Setter Property="UseLayoutRounding" Value="True"/>
                                                     <Setter Property="SnapsToDevicePixels" Value="False"/>
@@ -886,12 +892,15 @@
                                                             Width="*">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+                                                    <Setter Property="Foreground" Value="#FFE5E5E5"/>
                                                     <Setter Property="Padding" Value="10,0"/>
                                                     <Setter Property="VerticalAlignment" Value="Center"/>
-                                                    <Setter Property="FontFamily" Value="{StaticResource EternalUiFont}"/>
-                                                    <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                                                    <Setter Property="FontFamily" Value="Segoe UI"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                    <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
                                                     <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+                                                    <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
                                                     <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
                                                     <Setter Property="UseLayoutRounding" Value="True"/>
                                                     <Setter Property="SnapsToDevicePixels" Value="False"/>
@@ -996,11 +1005,13 @@
                         <TabItem Header="Settings">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                                 <StackPanel Margin="10"
-                                    TextOptions.TextFormattingMode="Display"
+                                    TextOptions.TextFormattingMode="Ideal"
                                     TextOptions.TextRenderingMode="ClearType"
+                                    TextOptions.TextHintingMode="Animated"
                                     RenderOptions.ClearTypeHint="Enabled"
                                     UseLayoutRounding="True"
                                     SnapsToDevicePixels="False">
+                                    
                                     <!-- Player Name Section -->
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -1009,17 +1020,31 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <TextBlock Text="Player Name:" Margin="5" VerticalAlignment="Center"
-                                                  Foreground="{DynamicResource TextColor}" Grid.Column="0"/>
+                                                  Foreground="{DynamicResource TextColor}" Grid.Column="0"
+                                                  TextOptions.TextFormattingMode="Ideal"
+                                                  TextOptions.TextRenderingMode="ClearType"
+                                                  TextOptions.TextHintingMode="Animated"
+                                                  RenderOptions.ClearTypeHint="Enabled"
+                                                  UseLayoutRounding="True"
+                                                  SnapsToDevicePixels="False"/>
                                         
                                         <TextBox x:Name="PlayerNameBox" Margin="5"
                                                 Background="{DynamicResource TextBoxBackground}"
-                                                Foreground="{DynamicResource TextColor}" Grid.Column="1"/>
+                                                Foreground="{DynamicResource TextColor}" Grid.Column="1"
+                                                TextOptions.TextFormattingMode="Ideal"
+                                                TextOptions.TextRenderingMode="ClearType"
+                                                TextOptions.TextHintingMode="Animated"
+                                                RenderOptions.ClearTypeHint="Enabled"
+                                                UseLayoutRounding="True"
+                                                SnapsToDevicePixels="False"/>
                                     </Grid>
+                                    
                                     <TextBlock Margin="5,0,5,15" FontSize="10" TextWrapping="Wrap"
                                               FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
                                               Foreground="#FFD0D0D0"
-                                              TextOptions.TextFormattingMode="Display"
+                                              TextOptions.TextFormattingMode="Ideal"
                                               TextOptions.TextRenderingMode="ClearType"
+                                              TextOptions.TextHintingMode="Animated"
                                               RenderOptions.ClearTypeHint="Enabled"
                                               UseLayoutRounding="True"
                                               SnapsToDevicePixels="False">
@@ -1043,17 +1068,31 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <TextBlock Text="DeFRaG Engine:" Margin="5" VerticalAlignment="Center"
-                                                  Foreground="{DynamicResource TextColor}" Grid.Column="0"/>
+                                                  Foreground="{DynamicResource TextColor}" Grid.Column="0"
+                                                  TextOptions.TextFormattingMode="Ideal"
+                                                  TextOptions.TextRenderingMode="ClearType"
+                                                  TextOptions.TextHintingMode="Animated"
+                                                  RenderOptions.ClearTypeHint="Enabled"
+                                                  UseLayoutRounding="True"
+                                                  SnapsToDevicePixels="False"/>
                                         
                                         <TextBox x:Name="EnginePathBox" Margin="5" Text="oDFe.x64.exe"
                                                 Background="{DynamicResource TextBoxBackground}"
-                                                Foreground="{DynamicResource TextColor}" Grid.Column="1"/>
+                                                Foreground="{DynamicResource TextColor}" Grid.Column="1"
+                                                TextOptions.TextFormattingMode="Ideal"
+                                                TextOptions.TextRenderingMode="ClearType"
+                                                TextOptions.TextHintingMode="Animated"
+                                                RenderOptions.ClearTypeHint="Enabled"
+                                                UseLayoutRounding="True"
+                                                SnapsToDevicePixels="False"/>
                                     </Grid>
+                                    
                                     <TextBlock Margin="5,0,5,15" FontSize="10" TextWrapping="Wrap"
                                               FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
                                               Foreground="#FFD0D0D0"
-                                              TextOptions.TextFormattingMode="Display"
+                                              TextOptions.TextFormattingMode="Ideal"
                                               TextOptions.TextRenderingMode="ClearType"
+                                              TextOptions.TextHintingMode="Animated"
                                               RenderOptions.ClearTypeHint="Enabled"
                                               UseLayoutRounding="True"
                                               SnapsToDevicePixels="False">
@@ -1082,10 +1121,22 @@
                                     
                                     <!-- Buttons -->
                                     <Button Content="Save Settings" Click="SaveSettings_Click" 
-                                           Margin="5" Style="{StaticResource ActionButtonStyle}"/>
+                                           Margin="5" Style="{StaticResource ActionButtonStyle}"
+                                           TextOptions.TextFormattingMode="Ideal"
+                                           TextOptions.TextRenderingMode="ClearType"
+                                           TextOptions.TextHintingMode="Animated"
+                                           RenderOptions.ClearTypeHint="Enabled"
+                                           UseLayoutRounding="True"
+                                           SnapsToDevicePixels="False"/>
                                     
                                     <Button Content="Rescan Maps" Click="RescanMaps_Click" 
-                                           Margin="5" Style="{StaticResource ActionButtonStyle}"/>
+                                           Margin="5" Style="{StaticResource ActionButtonStyle}"
+                                           TextOptions.TextFormattingMode="Ideal"
+                                           TextOptions.TextRenderingMode="ClearType"
+                                           TextOptions.TextHintingMode="Animated"
+                                           RenderOptions.ClearTypeHint="Enabled"
+                                           UseLayoutRounding="True"
+                                           SnapsToDevicePixels="False"/>
 
                                     <!-- Separator -->
                                     <Border Height="1" Background="#FF3A3A3A" Margin="5,15,5,5"/>
@@ -1093,7 +1144,13 @@
                                     <!-- Links Section -->
                                     <TextBlock Margin="5,5,5,5" FontSize="9" TextWrapping="Wrap"
                                              FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
-                                             Foreground="#FFD0D0D0">
+                                             Foreground="#FFD0D0D0"
+                                             TextOptions.TextFormattingMode="Ideal"
+                                             TextOptions.TextRenderingMode="ClearType"
+                                             TextOptions.TextHintingMode="Animated"
+                                             RenderOptions.ClearTypeHint="Enabled"
+                                             UseLayoutRounding="True"
+                                             SnapsToDevicePixels="False">
                                         <Run Text="My github (and DeFRaG Manager updates): "/>
                                         <Hyperlink NavigateUri="https://github.com/Qz3rK/q3-defrag-manager" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Qz3rK/q3-defrag-manager</Hyperlink>
                                         <LineBreak/>
@@ -1117,10 +1174,19 @@
                                         <Hyperlink NavigateUri="https://q3defrag.org/files/defrag" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://q3defrag.org/files/defrag</Hyperlink>
                                     </TextBlock>
 
+                                    <!-- Separator -->
+                                    <Border Height="1" Background="#FF3A3A3A" Margin="5,15,5,5"/>
+
                                     <!-- Copyright -->
                                     <TextBlock Margin="5,5,5,0" FontSize="9" HorizontalAlignment="Right"
                                               FontFamily="{DynamicResource {x:Static SystemFonts.MessageFontFamilyKey}}"
-                                              Foreground="#FFD0D0D0">
+                                              Foreground="#FFD0D0D0"
+                                              TextOptions.TextFormattingMode="Ideal"
+                                              TextOptions.TextRenderingMode="ClearType"
+                                              TextOptions.TextHintingMode="Animated"
+                                              RenderOptions.ClearTypeHint="Enabled"
+                                              UseLayoutRounding="True"
+                                              SnapsToDevicePixels="False">
                                         <Run Text="Copyright © 2025 Qz3rK | "/>
                                         <Hyperlink NavigateUri="https://github.com/Qz3rK" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Qz3rK</Hyperlink><Run Text=" | DeFRaG Manager (v1.1.0)"/>
                                     </TextBlock>
