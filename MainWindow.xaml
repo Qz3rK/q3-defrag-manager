@@ -34,6 +34,15 @@
             <Setter Property="Margin" Value="0"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
+
+        <SolidColorBrush x:Key="VQ3HoverColor" Color="#FF8A4A4A"/> <!-- Насыщенный светло-красный -->
+        <SolidColorBrush x:Key="CPMHoverColor" Color="#FF4A4A8A"/> <!-- Насыщенный светло-синий -->
+        <SolidColorBrush x:Key="GreenHoverColor" Color="#FF4A8A4A"/> <!-- Насыщенный светло-зеленый -->
+        <SolidColorBrush x:Key="TimeHoverColor" Color="#131313"/> <!-- Почти черный -->
+
+        <!-- Яркие цвета текста для кнопок -->
+        <SolidColorBrush x:Key="VQ3TextColor" Color="#FFD44A4A"/> <!-- Яркий красный -->
+        <SolidColorBrush x:Key="CPMTextColor" Color="#FF4A4AD4"/> <!-- Яркий синий -->
         
         <!-- Цвета для темной темы -->
         <SolidColorBrush x:Key="BackgroundColor" Color="#1E1E1E"/>
@@ -50,7 +59,7 @@
         <Style x:Key="TimeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="Template">
@@ -66,12 +75,17 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource TimeHoverColor}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource ButtonBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Padding" Value="5,2"/>
             <Setter Property="MinWidth" Value="80"/>
@@ -88,6 +102,46 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <!-- Для кнопок VQ3 -->
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="Tag" Value="vq3"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="{DynamicResource VQ3HoverColor}"/>
+                </MultiTrigger>
+                <!-- Для кнопок CPM -->
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="Tag" Value="cpm"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="{DynamicResource CPMHoverColor}"/>
+                </MultiTrigger>
+                <!-- Для кнопок Save Settings и Rescan Maps -->
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="Content" Value="Save Settings"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="{DynamicResource GreenHoverColor}"/>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="Content" Value="Rescan Maps"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="{DynamicResource GreenHoverColor}"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="LaunchButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,2,5,2"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
         </Style>
 
         <Style TargetType="DataGrid">
@@ -155,7 +209,7 @@
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="{DynamicResource TextBoxBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -165,13 +219,13 @@
         <Style TargetType="TabControl">
             <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="Black"/>
         </Style>
 
         <Style TargetType="TabItem">
             <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -469,20 +523,34 @@
                                             <DataGridTemplateColumn Width="100">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button Content="VQ3" 
-                                                                Tag="vq3" 
+                                                        <Button Tag="vq3" 
                                                                 Click="LaunchMap_Click"
-                                                                Style="{StaticResource ActionButtonStyle}"/>
+                                                                Style="{StaticResource LaunchButtonStyle}">
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <TextBlock Text="VQ3" 
+                                                                         Foreground="{StaticResource VQ3TextColor}"/>
+                                                                <TextBlock Text=" ▶" 
+                                                                         Foreground="{StaticResource VQ3TextColor}"
+                                                                         Margin="3,0,0,0"/>
+                                                            </StackPanel>
+                                                        </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
                                             <DataGridTemplateColumn Width="100">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button Content="CPM" 
-                                                                Tag="cpm" 
+                                                        <Button Tag="cpm" 
                                                                 Click="LaunchMap_Click"
-                                                                Style="{StaticResource ActionButtonStyle}"/>
+                                                                Style="{StaticResource LaunchButtonStyle}">
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <TextBlock Text="CPM" 
+                                                                         Foreground="{StaticResource CPMTextColor}"/>
+                                                                <TextBlock Text=" ▶" 
+                                                                         Foreground="{StaticResource CPMTextColor}"
+                                                                         Margin="3,0,0,0"/>
+                                                            </StackPanel>
+                                                        </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
@@ -555,20 +623,34 @@
                                         <DataGridTemplateColumn Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="VQ3" 
-                                                            Tag="vq3" 
+                                                    <Button Tag="vq3" 
                                                             Click="LaunchMap_Click"
-                                                            Style="{StaticResource ActionButtonStyle}"/>
+                                                            Style="{StaticResource LaunchButtonStyle}">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="VQ3" 
+                                                                     Foreground="{StaticResource VQ3TextColor}"/>
+                                                            <TextBlock Text=" ▶" 
+                                                                     Foreground="{StaticResource VQ3TextColor}"
+                                                                     Margin="3,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                         <DataGridTemplateColumn Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="CPM" 
-                                                            Tag="cpm" 
+                                                    <Button Tag="cpm" 
                                                             Click="LaunchMap_Click"
-                                                            Style="{StaticResource ActionButtonStyle}"/>
+                                                            Style="{StaticResource LaunchButtonStyle}">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="CPM" 
+                                                                     Foreground="{StaticResource CPMTextColor}"/>
+                                                            <TextBlock Text=" ▶" 
+                                                                     Foreground="{StaticResource CPMTextColor}"
+                                                                     Margin="3,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -640,20 +722,34 @@
                                         <DataGridTemplateColumn Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="VQ3" 
-                                                            Tag="vq3" 
+                                                    <Button Tag="vq3" 
                                                             Click="LaunchMap_Click"
-                                                            Style="{StaticResource ActionButtonStyle}"/>
+                                                            Style="{StaticResource LaunchButtonStyle}">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="VQ3" 
+                                                                     Foreground="{StaticResource VQ3TextColor}"/>
+                                                            <TextBlock Text=" ▶" 
+                                                                     Foreground="{StaticResource VQ3TextColor}"
+                                                                     Margin="3,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                         <DataGridTemplateColumn Width="100">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="CPM" 
-                                                            Tag="cpm" 
+                                                    <Button Tag="cpm" 
                                                             Click="LaunchMap_Click"
-                                                            Style="{StaticResource ActionButtonStyle}"/>
+                                                            Style="{StaticResource LaunchButtonStyle}">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="CPM" 
+                                                                     Foreground="{StaticResource CPMTextColor}"/>
+                                                            <TextBlock Text=" ▶" 
+                                                                     Foreground="{StaticResource CPMTextColor}"
+                                                                     Margin="3,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
