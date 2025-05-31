@@ -1,0 +1,42 @@
+<!-- Copyright (c) 2025 Qz3rK -->
+<!-- License: MIT (https://opensource.org/licenses/MIT) -->
+
+<Application x:Class="DefragManager.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- Основные стили для текстовых элементов -->
+        <Style TargetType="{x:Type TextElement}">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- Стили для контролов -->
+        <Style TargetType="{x:Type Control}">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- Специфические стили для часто используемых элементов -->
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <Style TargetType="{x:Type Label}">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Application.Resources>
+</Application>
