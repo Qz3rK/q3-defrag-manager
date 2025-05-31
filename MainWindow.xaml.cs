@@ -92,6 +92,8 @@ namespace DefragManager
         private readonly Random _random = new();
         private DateTime _lastDemoScanTime = DateTime.MinValue;
 
+        private string _enginePath = "oDFe.x64.exe";
+
         private static readonly Dictionary<string, BitmapImage> _thumbnailCache = new Dictionary<string, BitmapImage>();
 
         // Реализация INotifyPropertyChanged
@@ -133,8 +135,7 @@ namespace DefragManager
             Closed += OnWindowClosed;
             
             // Установка темной темы по умолчанию
-            ThemeToggle.IsChecked = true;
-            ThemeToggle_Checked(null, null);
+            SetDarkTheme();
         }
 
         private async Task DelayedThumbnailLoad(TabItem selectedTab, CancellationToken token)
@@ -512,22 +513,12 @@ namespace DefragManager
                     LogSettingsMessage("No player name file found");
                 }
 
-                // Загружаем тему из settings.dat
-                var settingsPath = Path.Combine("mgrdata", "settings.dat");
-                if (File.Exists(settingsPath))
+                // Загружаем путь к движку
+                var enginePath = Path.Combine("mgrdata", "engine.dat");
+                if (File.Exists(enginePath))
                 {
-                    var theme = File.ReadAllText(settingsPath).Trim();
-                    LogSettingsMessage($"Loaded theme: '{theme}'");
-                    Dispatcher.Invoke(() => 
-                    {
-                        ThemeToggle.IsChecked = theme.Equals("Dark", StringComparison.OrdinalIgnoreCase);
-                        ApplyTheme();
-                    });
-                }
-                else
-                {
-                    LogSettingsMessage("No theme settings found, using default (Dark)");
-                    Dispatcher.Invoke(() => ThemeToggle.IsChecked = true);
+                    _enginePath = File.ReadAllText(enginePath).Trim();
+                    Dispatcher.Invoke(() => EnginePathBox.Text = _enginePath);
                 }
             }
             catch (Exception ex)
@@ -538,34 +529,64 @@ namespace DefragManager
             }
         }
 
-        private void SaveSettings()
+        private void SaveAllSettings()
         {
             try
             {
-                Directory.CreateDirectory("mgrdata");
+                LogSettingsMessage("SaveAllSettings started");
                 
-                // Сохраняем имя в отдельный файл
-                var currentName = (PlayerNameBox?.Text ?? _playerName).Trim();
-                if (!string.IsNullOrEmpty(currentName))
+                // Получаем значения из UI
+                _playerName = PlayerNameBox?.Text?.Trim() ?? "";
+                _enginePath = EnginePathBox?.Text?.Trim() ?? "oDFe.x64.exe";
+                
+                // Проверка обязательного поля (имени игрока)
+                if (string.IsNullOrEmpty(_playerName))
                 {
-                    var namePath = Path.Combine("mgrdata", "name.dat");
-                    File.WriteAllText(namePath, currentName);
-                    _playerName = currentName;
-                    LogSettingsMessage($"Player name saved: '{currentName}'");
+                    LogSettingsMessage("Empty player name, showing warning");
+                    MessageBox.Show("Please enter a valid player name", "Warning", 
+                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
 
-                // Сохраняем тему
-                var theme = ThemeToggle?.IsChecked == true ? "Dark" : "Light";
-                var themePath = Path.Combine("mgrdata", "settings.dat");
-                File.WriteAllText(themePath, theme);
-                LogSettingsMessage($"Theme saved: {theme}");
+                // Обновляем заголовок окна
+                OnPropertyChanged(nameof(WindowTitle));
+                LogSettingsMessage($"Saving player name: '{_playerName}'");
+                LogSettingsMessage($"Saving engine path: '{_enginePath}'");
+
+                // Создаем директорию для настроек
+                Directory.CreateDirectory("mgrdata");
+                
+                // Сохраняем настройки в файлы
+                File.WriteAllText(Path.Combine("mgrdata", "name.dat"), _playerName);
+                File.WriteAllText(Path.Combine("mgrdata", "engine.dat"), _enginePath);
+
+                // Очищаем кеш демо
+                CleanupDemoCache();
+                
+                // Обновляем карты в фоновом потоке
+                LogSettingsMessage("Updating maps with new settings");
+                Task.Run(() =>
+                {
+                    foreach (var map in _allMaps) UpdateBestTimes(map);
+                    Dispatcher.Invoke(() => UpdateFilteredMaps());
+                });
+                
+                // Уведомляем пользователя об успешном сохранении
+                MessageBox.Show("Settings saved successfully!", "Success", 
+                              MessageBoxButton.OK, MessageBoxImage.Information);
+                LogSettingsMessage("Settings successfully saved and UI updated");
             }
             catch (Exception ex)
             {
-                LogSettingsMessage($"Error in SaveSettings: {ex}");
+                LogSettingsMessage($"Error in SaveAllSettings: {ex.Message}");
                 MessageBox.Show($"Failed to save settings: {ex.Message}", "Error", 
                               MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void SaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            SaveAllSettings();
         }
 
         private void LoadCache()
@@ -1216,7 +1237,7 @@ namespace DefragManager
                     {
                         UpdateFilteredMaps();
                     }, DispatcherPriority.Background);
-                    System.Diagnostics.Process.Start("oDFe.x64.exe", $"+{physics} {map.Name}");
+                    System.Diagnostics.Process.Start(_enginePath, $"+{physics} {map.Name}");
                 }
                 catch (Exception ex)
                 {
@@ -1237,7 +1258,7 @@ namespace DefragManager
                     if (_demoCache.TryGetValue(cacheKey, out var demoRecord) && !string.IsNullOrEmpty(demoRecord.DemoFileName))
                     {
                         // Используем сохраненное имя файла демо
-                        System.Diagnostics.Process.Start("oDFe.x64.exe", $"+demo {demoRecord.DemoFileName}");
+                        System.Diagnostics.Process.Start(_enginePath, $"+demo {demoRecord.DemoFileName}");
                     }
                     else
                     {
@@ -1246,7 +1267,7 @@ namespace DefragManager
                         if (!string.IsNullOrEmpty(time))
                         {
                             var demoName = $"{map.Name}[df.{physics}]{time}({_playerName}).dm_68";
-                            System.Diagnostics.Process.Start("oDFe.x64.exe", $"+demo {demoName}");
+                            System.Diagnostics.Process.Start(_enginePath, $"+demo {demoName}");
                         }
                         else
                         {
@@ -1259,82 +1280,6 @@ namespace DefragManager
                 {
                     MessageBox.Show($"Failed to play demo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
-        }
-
-        private void SavePlayerName_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                LogSettingsMessage("SavePlayerName button clicked");
-                
-                _playerName = PlayerNameBox?.Text?.Trim() ?? "";
-                OnPropertyChanged(nameof(WindowTitle));
-                LogSettingsMessage($"Attempting to save player name: '{_playerName}'");
-                
-                if (string.IsNullOrEmpty(_playerName))
-                {
-                    LogSettingsMessage("Empty player name, showing warning");
-                    MessageBox.Show("Please enter a valid player name", "Warning", 
-                                  MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                
-                SaveSettings();
-                CleanupDemoCache();
-                
-                LogSettingsMessage("Updating maps with new player name");
-                Task.Run(() =>
-                {
-                    foreach (var map in _allMaps) UpdateBestTimes(map);
-                    Dispatcher.Invoke(() => UpdateFilteredMaps());
-                });
-                
-                MessageBox.Show("Player name saved successfully!", "Success", 
-                              MessageBoxButton.OK, MessageBoxImage.Information);
-                LogSettingsMessage("Player name successfully saved and UI updated");
-            }
-            catch (Exception ex)
-            {
-                LogSettingsMessage($"Error in SavePlayerName: {ex.Message}");
-                MessageBox.Show($"Failed to save player name: {ex.Message}", "Error", 
-                              MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void ThemeToggle_Checked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Resources["BackgroundColor"] = new SolidColorBrush(Color.FromRgb(30, 30, 30));
-                Resources["TextColor"] = Brushes.White;
-                Resources["ButtonBackground"] = new SolidColorBrush(Color.FromRgb(0x3D, 0x3D, 0x3D));
-                Resources["AlternatingRowColor"] = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x2A));
-                Resources["ThumbnailBackground"] = new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3A));
-                Resources["TextBoxBackground"] = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
-                SaveSettings();
-            }
-            catch (Exception ex)
-            {
-                LogThumbnailMessage($"Error in dark theme: {ex.Message}");
-            }
-        }
-
-        private void ThemeToggle_Unchecked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Resources["BackgroundColor"] = Brushes.White;
-                Resources["TextColor"] = Brushes.Black;
-                Resources["ButtonBackground"] = new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
-                Resources["AlternatingRowColor"] = new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0));
-                Resources["ThumbnailBackground"] = Brushes.LightGray;
-                Resources["TextBoxBackground"] = Brushes.White;
-                SaveSettings();
-            }
-            catch (Exception ex)
-            {
-                LogThumbnailMessage($"Error in light theme: {ex.Message}");
             }
         }
 
@@ -1628,9 +1573,9 @@ namespace DefragManager
             }
         }
 
-        private void ApplyTheme()
+        private void SetDarkTheme()
         {
-            if (ThemeToggle.IsChecked == true)
+            try
             {
                 Resources["BackgroundColor"] = new SolidColorBrush(Color.FromRgb(30, 30, 30));
                 Resources["TextColor"] = Brushes.White;
@@ -1639,14 +1584,9 @@ namespace DefragManager
                 Resources["ThumbnailBackground"] = new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3A));
                 Resources["TextBoxBackground"] = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
             }
-            else
+            catch (Exception ex)
             {
-                Resources["BackgroundColor"] = Brushes.White;
-                Resources["TextColor"] = Brushes.Black;
-                Resources["ButtonBackground"] = new SolidColorBrush(Color.FromRgb(0xDD, 0xDD, 0xDD));
-                Resources["AlternatingRowColor"] = new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0));
-                Resources["ThumbnailBackground"] = Brushes.LightGray;
-                Resources["TextBoxBackground"] = Brushes.White;
+                LogThumbnailMessage($"Error setting dark theme: {ex.Message}");
             }
         }
 

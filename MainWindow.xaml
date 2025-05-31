@@ -672,16 +672,15 @@
                                             Background="{DynamicResource TextBoxBackground}"
                                             Foreground="{DynamicResource TextColor}"/>
                                     
-                                    <CheckBox x:Name="ThemeToggle" 
-                                            Content="Dark Theme" 
+                                    <TextBlock Text="DeFRaG Engine:" Margin="5,5,5,0" Foreground="{DynamicResource TextColor}"/>
+                                    <TextBox x:Name="EnginePathBox" 
                                             Margin="5"
-                                            Foreground="{DynamicResource TextColor}"
-                                            IsChecked="True"
-                                            Checked="ThemeToggle_Checked" 
-                                            Unchecked="ThemeToggle_Unchecked"/>
+                                            Text="oDFe.x64.exe"
+                                            Background="{DynamicResource TextBoxBackground}"
+                                            Foreground="{DynamicResource TextColor}"/>
                                     
                                     <Button Content="Save Settings" 
-                                            Click="SavePlayerName_Click" 
+                                            Click="SaveSettings_Click" 
                                             Margin="5"
                                             Style="{StaticResource ActionButtonStyle}"/>
                                     
