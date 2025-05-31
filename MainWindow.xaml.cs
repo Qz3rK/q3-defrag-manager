@@ -428,6 +428,9 @@ namespace DefragManager
                 
                 // Сохраняем весь кеш демо
                 SaveAllDemoCache();
+
+                // Сохраняем кеш миниатюр
+                SaveThumbnailCache();
                 
                 LogSettingsMessage("Window closed successfully");
             }
@@ -461,6 +464,7 @@ namespace DefragManager
             _recentMaps.Clear();
             _mapThumbnails.Clear();
             SaveDemoCache();
+            SaveThumbnailCache(); // Добавлено сохранение кеша миниатюр
 
             foreach (var bitmap in _thumbnailCache.Values)
             {
@@ -567,8 +571,15 @@ namespace DefragManager
         {
             try
             {
+                // Загружаем кеш миниатюр
+                var thumbnailCache = LoadThumbnailCache();
+                
                 if (File.Exists(Path.Combine("mgrdata", "mapscache.dat")))
-                    _allMaps = File.ReadAllLines(Path.Combine("mgrdata", "mapscache.dat")).Take(MaxMapCacheSize).Select(l => new MapInfo { Name = l }).ToList();
+                    _allMaps = File.ReadAllLines(Path.Combine("mgrdata", "mapscache.dat")).Take(MaxMapCacheSize)
+                        .Select(l => new MapInfo { 
+                            Name = l,
+                            Thumbnail = thumbnailCache.TryGetValue(l, out var thumb) ? thumb : null
+                        }).ToList();
 
                 if (File.Exists(Path.Combine("mgrdata", "favorites.dat")))
                     _favorites = File.ReadAllLines(Path.Combine("mgrdata", "favorites.dat")).Take(MaxMapCacheSize).ToList();
@@ -717,13 +728,6 @@ namespace DefragManager
                     UpdateBestTimes(map);
                 }
 
-                // Для случайных карт - сначала загружаем превью, потом обновляем UI
-                if (string.IsNullOrEmpty(searchText))
-                {
-                    await Task.Run(() => LoadAllThumbnails());
-                    await Task.Delay(500); // Короткая задержка для стабильности
-                }
-
                 await Dispatcher.Invoke(async () =>
                 {
                     MapsGrid.ItemsSource = null;
@@ -737,11 +741,11 @@ namespace DefragManager
                     RecentGrid.ItemsSource = _recentMaps.Select(m => _allMaps.FirstOrDefault(am => am.Name == m))
                                                       .Where(m => m != null).ToList();
 
-                    // Для поиска - дополнительная задержка перед загрузкой превью
+                    // Для поиска - дополнительная задержка перед загрузкой отсутствующих превью
                     if (!string.IsNullOrEmpty(searchText))
                     {
                         await Task.Delay(400);
-                        await LoadVisibleThumbnails(MapsGridScroll, MapsGrid, _filteredMaps, _thumbnailLoadingCts.Token);
+                        await LoadMissingThumbnails(MapsGridScroll, MapsGrid, _filteredMaps, _thumbnailLoadingCts.Token);
                     }
                 });
             }
@@ -750,7 +754,6 @@ namespace DefragManager
                 LogThumbnailMessage($"Error in UpdateFilteredMaps: {ex.Message}");
             }
         }
-
 
         private readonly HashSet<TabItem> _visitedTabs = new HashSet<TabItem>();
 
@@ -1504,6 +1507,13 @@ namespace DefragManager
             
             try
             {
+                // Проверяем кеш в памяти
+                if (_thumbnailCache.TryGetValue(map.Name, out var cachedBitmap))
+                {
+                    map.Thumbnail = cachedBitmap;
+                    return;
+                }
+
                 var parts = thumbPath.Split(new[] {'|'}, 2);
                 if (parts.Length != 2) return;
 
@@ -1543,6 +1553,7 @@ namespace DefragManager
                                 bitmap.Freeze();
                                 
                                 map.Thumbnail = bitmap;
+                                _thumbnailCache[map.Name] = bitmap; // Добавляем в кеш
                                 
                                 if (MapsGrid.ItemContainerGenerator.ContainerFromItem(map) is DataGridRow container)
                                     container.InvalidateVisual();
@@ -1673,6 +1684,146 @@ namespace DefragManager
             base.OnStateChanged(e);
             UpdateActivityState();
         }
+        //добавление методов сохранения прьвью в кеш на диск
+
+        private async Task LoadMissingThumbnails(ScrollViewer scrollViewer, DataGrid dataGrid, 
+            IList<MapInfo> sourceCollection, CancellationToken token)
+        {
+            if (!_isWindowActive || _isLoadingThumbnails || scrollViewer == null || dataGrid == null) 
+                return;
+                
+            _isLoadingThumbnails = true;
+            
+            try
+            {
+                var visibleMaps = GetCurrentlyVisibleMaps(scrollViewer, dataGrid, sourceCollection);
+                
+                // Фильтруем только те карты, у которых нет миниатюры
+                var mapsToLoad = visibleMaps
+                    .Where(m => m.Thumbnail == null && _mapThumbnails.ContainsKey(m.Name))
+                    .ToList();
+                
+                if (!mapsToLoad.Any()) return;
+
+                var batches = mapsToLoad
+                    .Select((map, index) => new { map, index })
+                    .GroupBy(x => x.index / ThumbnailBatchSize)
+                    .Select(g => g.Select(x => x.map).ToList());
+                
+                foreach (var batch in batches)
+                {
+                    if (token.IsCancellationRequested) break;
+                    
+                    var tasks = batch.Select(map => 
+                    {
+                        if (!_mapThumbnails.TryGetValue(map.Name, out var thumbPath)) 
+                            return Task.CompletedTask;
+                            
+                        return _thumbnailLoadSemaphore.WaitAsync(token)
+                            .ContinueWith(async _ => 
+                            {
+                                try
+                                {
+                                    await LoadThumbnailAsync(map, thumbPath, token);
+                                }
+                                finally
+                                {
+                                    _thumbnailLoadSemaphore.Release();
+                                }
+                            }, token);
+                    }).ToList();
+                    
+                    await Task.WhenAll(tasks);
+                    
+                    // Обновляем UI после каждой пачки
+                    Dispatcher.Invoke(() => 
+                    {
+                        dataGrid.Items.Refresh();
+                    }, DispatcherPriority.Background);
+                    
+                    if (token.IsCancellationRequested) break;
+                    await Task.Delay(100, token); // Небольшая пауза для плавности UI
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Игнорируем отмену операции
+            }
+            catch (Exception ex)
+            {
+                LogThumbnailMessage($"Error in LoadMissingThumbnails: {ex.Message}");
+            }
+            finally
+            {
+                _isLoadingThumbnails = false;
+            }
+        }
+
+        private void SaveThumbnailCache()
+        {
+            try
+            {
+                var cacheLines = _thumbnailCache.Select(kv => 
+                    $"{kv.Key}|{Convert.ToBase64String(ImageToBytes(kv.Value))}");
+                File.WriteAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"), cacheLines);
+            }
+            catch (Exception ex)
+            {
+                LogThumbnailMessage($"Error saving thumbnail cache: {ex.Message}");
+            }
+        }
+
+        private Dictionary<string, BitmapImage> LoadThumbnailCache()
+        {
+            var cache = new Dictionary<string, BitmapImage>();
+            try
+            {
+                if (File.Exists(Path.Combine("mgrdata", "thumbnail_cache.dat")))
+                {
+                    foreach (var line in File.ReadAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat")))
+                    {
+                        var parts = line.Split(new[] { '|' }, 2);
+                        if (parts.Length == 2)
+                        {
+                            var bytes = Convert.FromBase64String(parts[1]);
+                            var bitmap = BytesToImage(bytes);
+                            bitmap.Freeze();
+                            cache[parts[0]] = bitmap;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogThumbnailMessage($"Error loading thumbnail cache: {ex.Message}");
+            }
+            return cache;
+        }
+
+        private byte[] ImageToBytes(BitmapImage image)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var encoder = new JpegBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(image));
+                encoder.Save(ms);
+                return ms.ToArray();
+            }
+        }
+
+        private BitmapImage BytesToImage(byte[] bytes)
+        {
+            using (var ms = new MemoryStream(bytes))
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = ms;
+                bitmap.EndInit();
+                return bitmap;
+            }
+        }
+
 
     }
 }
