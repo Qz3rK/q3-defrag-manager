@@ -1249,6 +1249,7 @@ namespace DefragManager
                     {
                         UpdateFilteredMaps();
                     }, DispatcherPriority.Background);
+                    KillExistingProcess();
                     System.Diagnostics.Process.Start(_enginePath, $"+{physics} {map.Name}");
                 }
                 catch (Exception ex)
@@ -1269,6 +1270,7 @@ namespace DefragManager
                     
                     if (_demoCache.TryGetValue(cacheKey, out var demoRecord) && !string.IsNullOrEmpty(demoRecord.DemoFileName))
                     {
+                        KillExistingProcess();
                         // Используем сохраненное имя файла демо
                         System.Diagnostics.Process.Start(_enginePath, $"+demo {demoRecord.DemoFileName}");
                     }
@@ -1278,6 +1280,7 @@ namespace DefragManager
                         var time = physics == "vq3" ? map.VQ3Time : map.CPMTime;
                         if (!string.IsNullOrEmpty(time))
                         {
+                            KillExistingProcess();
                             var demoName = $"{map.Name}[df.{physics}]{time}({_playerName}).dm_68";
                             System.Diagnostics.Process.Start(_enginePath, $"+demo {demoName}");
                         }
@@ -1879,6 +1882,33 @@ namespace DefragManager
                 MessageBox.Show($"Не удалось открыть ссылку: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void KillExistingProcess()
+        {
+            try
+            {
+                var processName = Path.GetFileNameWithoutExtension(_enginePath);
+                var processes = Process.GetProcessesByName(processName);
+                
+                foreach (var process in processes)
+                {
+                    try
+                    {
+                        process.Kill();
+                        process.WaitForExit(1000); // Даем процессу время завершиться
+                    }
+                    catch (Exception ex)
+                    {
+                        LogSettingsMessage($"Error killing process {processName}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error in KillExistingProcess: {ex.Message}");
+            }
+        }
+
 
     }
 }
