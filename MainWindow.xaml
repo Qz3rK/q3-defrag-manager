@@ -110,6 +110,7 @@
                 <Setter.Value>
                     <DataTemplate>
                         <TextBlock Text="{Binding}"
+                                   Margin="0,-2,0,0"
                                    Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                    Effect="{StaticResource ShadowEffect}"
                                    TextOptions.TextFormattingMode="Display"
@@ -677,22 +678,24 @@
                                             <DataGridTemplateColumn Width="50">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button Content="★" 
-                                                                Click="ToggleFavorite_Click"
-                                                                Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}"
+                                                        <Button Click="ToggleFavorite_Click"
                                                                 Background="Transparent"
                                                                 BorderThickness="0"
-                                                                FontSize="20"
                                                                 Padding="0">
-                                                            <Button.Effect>
-                                                                <DropShadowEffect 
-                                                                    Color="#FF000000"
-                                                                    Direction="315"
-                                                                    ShadowDepth="1"
-                                                                    BlurRadius="0"
-                                                                    Opacity="1"
-                                                                    RenderingBias="Quality"/>
-                                                            </Button.Effect>
+                                                            <TextBlock Text="★" 
+                                                                       FontSize="19"
+                                                                       Margin="0,2,0,0"
+                                                                       Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
+                                                                <TextBlock.Effect>
+                                                                    <DropShadowEffect 
+                                                                        Color="#FF000000"
+                                                                        Direction="315"
+                                                                        ShadowDepth="1"
+                                                                        BlurRadius="0"
+                                                                        Opacity="1"
+                                                                        RenderingBias="Quality"/>
+                                                                </TextBlock.Effect>
+                                                            </TextBlock>
                                                         </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -703,7 +706,7 @@
                                                         <Button Tag="vq3" 
                                                                 Click="LaunchMap_Click"
                                                                 Style="{StaticResource LaunchButtonStyle}">
-                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
                                                                 <TextBlock Text="VQ3" 
                                                                          Foreground="{StaticResource VQ3TextColor}"
                                                                          Effect="{StaticResource ShadowEffect}"/>
@@ -722,7 +725,7 @@
                                                         <Button Tag="cpm" 
                                                                 Click="LaunchMap_Click"
                                                                 Style="{StaticResource LaunchButtonStyle}">
-                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
                                                                 <TextBlock Text="CPM" 
                                                                          Foreground="{StaticResource CPMTextColor}"
                                                                          Effect="{StaticResource ShadowEffect}"/>
@@ -830,22 +833,24 @@
                                         <DataGridTemplateColumn Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="★" 
-                                                            Click="ToggleFavorite_Click"
-                                                            Foreground="Gold"
+                                                    <Button Click="ToggleFavorite_Click"
                                                             Background="Transparent"
                                                             BorderThickness="0"
-                                                            FontSize="20"
                                                             Padding="0">
-                                                        <Button.Effect>
-                                                            <DropShadowEffect 
-                                                                Color="#FF000000"
-                                                                Direction="315"
-                                                                ShadowDepth="1"
-                                                                BlurRadius="0"
-                                                                Opacity="1"
-                                                                RenderingBias="Quality"/>
-                                                        </Button.Effect>
+                                                        <TextBlock Text="★" 
+                                                                   FontSize="19"
+                                                                   Margin="0,2,0,0"
+                                                                   Foreground="Gold">
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect 
+                                                                    Color="#FF000000"
+                                                                    Direction="315"
+                                                                    ShadowDepth="1"
+                                                                    BlurRadius="0"
+                                                                    Opacity="1"
+                                                                    RenderingBias="Quality"/>
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
                                                     </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
@@ -856,7 +861,7 @@
                                                     <Button Tag="vq3" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
                                                             <TextBlock Text="VQ3" 
                                                                      Foreground="{StaticResource VQ3TextColor}"
                                                                      Effect="{StaticResource ShadowEffect}"/>
@@ -875,7 +880,7 @@
                                                     <Button Tag="cpm" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
                                                             <TextBlock Text="CPM" 
                                                                      Foreground="{StaticResource CPMTextColor}" Effect="{StaticResource ShadowEffect}"/>
                                                             <TextBlock Text=" ▶" 
@@ -966,7 +971,8 @@
                                                             BorderThickness="0"
                                                             Padding="0">
                                                         <TextBlock Text="★" 
-                                                                   FontSize="20"
+                                                                   FontSize="19"
+                                                                   Margin="0,2,0,0"
                                                                    Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
                                                             <TextBlock.Effect>
                                                                 <DropShadowEffect 
@@ -988,7 +994,7 @@
                                                     <Button Tag="vq3" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
                                                             <TextBlock Text="VQ3" 
                                                                      Foreground="{StaticResource VQ3TextColor}"
                                                                      Effect="{StaticResource ShadowEffect}"/>
@@ -1007,7 +1013,7 @@
                                                     <Button Tag="cpm" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
                                                             <TextBlock Text="CPM" 
                                                                      Foreground="{StaticResource CPMTextColor}" Effect="{StaticResource ShadowEffect}"/>
                                                             <TextBlock Text=" ▶" 
