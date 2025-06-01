@@ -840,7 +840,7 @@
                                                         <TextBlock Text="★" 
                                                                    FontSize="19"
                                                                    Margin="0,2,0,0"
-                                                                   Foreground="Gold">
+                                                                   Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
                                                             <TextBlock.Effect>
                                                                 <DropShadowEffect 
                                                                     Color="#FF000000"

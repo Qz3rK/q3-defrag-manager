@@ -246,6 +246,7 @@ namespace DefragManager
                 // 5. Обновляем интерфейс
                 LogSettingsMessage("Updating UI...");
                 UpdateFilteredMaps();
+                UpdateFavoritesState(); // Добавлено обновление состояния избранных карт
                 RefreshMapTimesUI();
 
                 // 6. Запускаем фоновые задачи
@@ -808,6 +809,13 @@ namespace DefragManager
         {
             if (e.Source is TabControl tabControl && tabControl.SelectedItem is TabItem selectedTab)
             {
+
+                // Обновляем состояние избранных карт при переходе на вкладки Favorites или Recent
+                if (selectedTab == FavoritesTab || selectedTab == RecentTab)
+                {
+                    UpdateFavoritesState();
+                }
+
                 // Отменяем предыдущие задачи загрузки
                 _thumbnailLoadingCts.Cancel();
                 _thumbnailLoadingCts.Dispose();
@@ -1922,6 +1930,21 @@ namespace DefragManager
             }
         }
 
+        private void UpdateFavoritesState()
+        {
+            try
+            {
+                // Просто обновляем свойство IsFavorite для всех карт
+                foreach (var map in _allMaps)
+                {
+                    map.IsFavorite = _favorites.Contains(map.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error updating favorites state: {ex.Message}");
+            }
+        }
 
     }
 }
