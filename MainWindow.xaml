@@ -552,39 +552,47 @@
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
                     SnapsToDevicePixels="True">
                 <Grid>
-                    <TextBlock 
-                        VerticalAlignment="Center"
-                        Margin="10,0,0,0"
-                        FontSize="14"
-                        TextOptions.TextFormattingMode="Ideal"
-                        TextOptions.TextRenderingMode="ClearType"
-                        TextOptions.TextHintingMode="Animated"
-                        RenderOptions.ClearTypeHint="Enabled"
-                        UseLayoutRounding="True">
-                        
-                        <!-- Часть с кастомным шрифтом -->
-                        <Run 
-                            Text="DeFRaG Manager" 
-                            FontFamily="{StaticResource EternalUiFont}"
-                            Foreground="White"/>
-                        
-                        <!-- Разделитель -->
-                        <Run 
-                            Text=" | " 
-                            FontFamily="Segoe UI" 
-                            FontWeight="Bold"
-                            Foreground="White"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                        <!-- Ник (системный шрифт) -->
-                        <Run 
-                            Text="{Binding WindowTitle}" 
-                            FontFamily="Segoe UI" 
-                            FontWeight="Bold"
-                            Foreground="White"/>
+                    <Image Grid.Column="0"
+                           Source="/Assets/Icons/icon.png"
+                           Width="20"
+                           Height="20"
+                           Margin="5,0,5,0"
+                           VerticalAlignment="Center"
+                           SnapsToDevicePixels="True"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Margin="0,0,0,0"
+                               FontSize="14"
+                               TextOptions.TextFormattingMode="Ideal"
+                               TextOptions.TextRenderingMode="ClearType"
+                               TextOptions.TextHintingMode="Animated"
+                               RenderOptions.ClearTypeHint="Enabled"
+                               UseLayoutRounding="True">
+                        <Run Text="DeFRaG Manager" 
+                             FontFamily="{StaticResource EternalUiFont}"
+                             Foreground="White"/>
+                        <Run Text=" | " 
+                             FontFamily="Segoe UI" 
+                             FontWeight="Bold"
+                             Foreground="White"/>
+                        <Run Text="{Binding WindowTitle}" 
+                             FontFamily="Segoe UI" 
+                             FontWeight="Bold"
+                             Foreground="White"/>
                     </TextBlock>
                     
-                    <!-- Кнопки управления окном -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <!-- Кнопки управления окном (перенесено в Grid.Column="2") -->
+                    <StackPanel Grid.Column="2"
+                               Orientation="Horizontal" 
+                               HorizontalAlignment="Right">
                         <Button Content="─" Style="{StaticResource TitleButtonStyle}" Click="MinimizeWindow"/>
                         <Button Content="□" Style="{StaticResource TitleButtonStyle}" Click="MaximizeWindow"/>
                         <Button Content="✕" Style="{StaticResource TitleButtonStyle}" Click="CloseWindow"/>

@@ -48,6 +48,11 @@
     <Resource Include="Assets\Fonts\EternalUiBold.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+
+    <!-- Добавляем иконку -->
+    <Resource Include="Assets\Icons\icon.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     
     <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
   </ItemGroup>
