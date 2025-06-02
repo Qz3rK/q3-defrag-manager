@@ -595,7 +595,27 @@
                 <!-- Основное содержимое -->
                 <Border Grid.Row="1" CornerRadius="0,0,5,5">
                     <TabControl Background="{DynamicResource BackgroundColor}" SelectionChanged="TabControl_SelectionChanged">
-                        <TabItem x:Name="AllMapsTab" Header="All Maps">
+                        <TabItem x:Name="AllMapsTab">
+                            <TabItem.Header>
+                                <TextBlock VerticalAlignment="Center"
+                                           Margin="-6,-2,0,0"
+                                           Padding="0"
+                                           TextOptions.TextFormattingMode="Ideal"
+                                           TextOptions.TextRenderingMode="ClearType"
+                                           TextOptions.TextHintingMode="Animated"
+                                           RenderOptions.ClearTypeHint="Enabled"
+                                           UseLayoutRounding="True"
+                                           SnapsToDevicePixels="False">
+                                    <Span>
+                                        <Run Text="🔍" 
+                                             Foreground="DodgerBlue"
+                                             FontSize="15"/>
+                                        <Run Text="All Maps"
+                                             FontFamily="{StaticResource EternalUiFont}"
+                                             FontSize="14"/>
+                                    </Span>
+                                </TextBlock>
+                            </TabItem.Header>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -743,28 +763,54 @@
                                 </ScrollViewer>
                             </Grid>
                         </TabItem>
-                        
                         <TabItem x:Name="FavoritesTab">
-                                <TabItem.Header>
-                                    <TextBlock VerticalAlignment="Center"
-                                               Margin="-6,-2,0,0"
-                                               Padding="0"
+                            <TabItem.Header>
+                                <!-- Добавлен ClipToBounds и отрицательные отступы -->
+                                <Grid VerticalAlignment="Center" 
+                                      Margin="-6,-8,0,-8"
+                                      SnapsToDevicePixels="True"
+                                      ClipToBounds="True">
+                                    
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/> <!-- Для звезды -->
+                                        <ColumnDefinition Width="Auto"/> <!-- Для текста -->
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Звезда с увеличенным размером и отрицательным отступом -->
+                                    <TextBlock Grid.Column="0"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,-9,2,-5"
+                                               Text="★"
+                                               Foreground="Gold"
+                                               FontSize="21"
                                                TextOptions.TextFormattingMode="Ideal"
                                                TextOptions.TextRenderingMode="ClearType"
                                                TextOptions.TextHintingMode="Animated"
                                                RenderOptions.ClearTypeHint="Enabled"
                                                UseLayoutRounding="True"
                                                SnapsToDevicePixels="False">
-                                        <Span>
-                                            <Run Text="★" 
-                                                 Foreground="Gold"
-                                                 FontSize="15"/>
-                                            <Run Text="Favorites"
-                                                 FontFamily="{StaticResource EternalUiFont}"
-                                                 FontSize="14"/>
-                                        </Span>
+                                        <TextBlock.RenderTransform>
+                                            <!-- Масштабирование на 5% (пример: для FontSize="21" → 22.05) -->
+                                            <ScaleTransform ScaleX="1.0238" ScaleY="1.0238" />
+                                        </TextBlock.RenderTransform>
                                     </TextBlock>
-                                </TabItem.Header>
+
+                                    <!-- Текст с фиксированным размером -->
+                                    <TextBlock Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Text="Favorites"
+                                               FontFamily="{StaticResource EternalUiFont}"
+                                               Margin="2,0,0,0"
+                                               TextOptions.TextFormattingMode="Ideal"
+                                               TextOptions.TextRenderingMode="ClearType"
+                                               TextOptions.TextHintingMode="Animated"
+                                               RenderOptions.ClearTypeHint="Enabled"
+                                               UseLayoutRounding="True"
+                                               SnapsToDevicePixels="False"
+                                               FontSize="14"/>
+                                </Grid>
+                            </TabItem.Header>
                             <ScrollViewer x:Name="FavoritesScroll" 
                                           VerticalScrollBarVisibility="Auto" 
                                           ScrollChanged="FavoritesScroll_ScrollChanged"
@@ -897,7 +943,27 @@
                             </ScrollViewer>
                         </TabItem>
                         
-                        <TabItem x:Name="RecentTab" Header="Recent">
+                        <TabItem x:Name="RecentTab">
+                            <TabItem.Header>
+                                <TextBlock VerticalAlignment="Center"
+                                           Margin="-6,-2,0,0"
+                                           Padding="0"
+                                           TextOptions.TextFormattingMode="Ideal"
+                                           TextOptions.TextRenderingMode="ClearType"
+                                           TextOptions.TextHintingMode="Animated"
+                                           RenderOptions.ClearTypeHint="Enabled"
+                                           UseLayoutRounding="True"
+                                           SnapsToDevicePixels="False">
+                                    <Span>
+                                        <Run Text="🕒" 
+                                             Foreground="LightGreen"
+                                             FontSize="15"/>
+                                        <Run Text="Recent"
+                                             FontFamily="{StaticResource EternalUiFont}"
+                                             FontSize="14"/>
+                                    </Span>
+                                </TextBlock>
+                            </TabItem.Header>
                             <ScrollViewer x:Name="RecentScroll"
                                           VerticalScrollBarVisibility="Auto"
                                           PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
@@ -1029,7 +1095,27 @@
                                 </DataGrid>
                             </ScrollViewer>
                         </TabItem>
-                        <TabItem Header="Settings">
+                        <TabItem x:Name="SettingsTab">
+                            <TabItem.Header>
+                                <TextBlock VerticalAlignment="Center"
+                                           Margin="-6,-2,0,0"
+                                           Padding="0"
+                                           TextOptions.TextFormattingMode="Ideal"
+                                           TextOptions.TextRenderingMode="ClearType"
+                                           TextOptions.TextHintingMode="Animated"
+                                           RenderOptions.ClearTypeHint="Enabled"
+                                           UseLayoutRounding="True"
+                                           SnapsToDevicePixels="False">
+                                    <Span>
+                                        <Run Text="🔧" 
+                                             Foreground="Silver"
+                                             FontSize="15"/>
+                                        <Run Text="Settings"
+                                             FontFamily="{StaticResource EternalUiFont}"
+                                             FontSize="14"/>
+                                    </Span>
+                                </TextBlock>
+                            </TabItem.Header>
                             <ScrollViewer VerticalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                                 <StackPanel Margin="10"
                                     TextOptions.TextFormattingMode="Ideal"
