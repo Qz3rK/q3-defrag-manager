@@ -13,6 +13,9 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishTrimmed>false</PublishTrimmed>
+
+    <ApplicationIcon>Assets\Icons\icon.ico</ApplicationIcon>
+    <AssemblyName>DeFRaG-Manager</AssemblyName>
     
     <EnableDefaultItems>false</EnableDefaultItems>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -52,6 +55,11 @@
     <!-- Добавляем иконку -->
     <Resource Include="Assets\Icons\icon.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+
+    <!-- Добавляем ICO файл -->
+    <Resource Include="Assets\Icons\icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     
     <PackageReference Include="System.IO.Compression.ZipFile" Version="4.3.0" />
