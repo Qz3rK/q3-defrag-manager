@@ -545,60 +545,137 @@
                     <RowDefinition Height="*"/>  <!-- Контент -->
                 </Grid.RowDefinitions>
                 
-            <!-- Панель заголовка -->
-            <Border Grid.Row="0" 
-                    Background="#1E1E1E" 
-                    CornerRadius="5,5,0,0"
-                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
-                    SnapsToDevicePixels="True">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <!-- Панель заголовка -->
+                <Border Grid.Row="0" 
+                        Background="#1E1E1E" 
+                        CornerRadius="5,5,0,0"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                        SnapsToDevicePixels="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Image Grid.Column="0"
-                           Source="/Assets/Icons/icon.png"
-                           Width="20"
-                           Height="20"
-                           Margin="5,0,5,0"
-                           VerticalAlignment="Center"
-                           SnapsToDevicePixels="True"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
-
-                    <TextBlock Grid.Column="1"
+                        <Image Grid.Column="0"
+                               Source="/Assets/Icons/icon.png"
+                               Width="20"
+                               Height="20"
+                               Margin="5,0,5,0"
                                VerticalAlignment="Center"
-                               Margin="0,0,0,0"
-                               FontSize="14"
-                               TextOptions.TextFormattingMode="Ideal"
-                               TextOptions.TextRenderingMode="ClearType"
-                               TextOptions.TextHintingMode="Animated"
-                               RenderOptions.ClearTypeHint="Enabled"
-                               UseLayoutRounding="True">
-                        <Run Text="DeFRaG Manager" 
-                             FontFamily="{StaticResource EternalUiFont}"
-                             Foreground="White"/>
-                        <Run Text=" | " 
-                             FontFamily="Segoe UI" 
-                             FontWeight="Bold"
-                             Foreground="White"/>
-                        <Run Text="{Binding WindowTitle}" 
-                             FontFamily="Segoe UI" 
-                             FontWeight="Bold"
-                             Foreground="White"/>
-                    </TextBlock>
-                    
-                    <!-- Кнопки управления окном (перенесено в Grid.Column="2") -->
-                    <StackPanel Grid.Column="2"
-                               Orientation="Horizontal" 
-                               HorizontalAlignment="Right">
-                        <Button Content="─" Style="{StaticResource TitleButtonStyle}" Click="MinimizeWindow"/>
-                        <Button Content="□" Style="{StaticResource TitleButtonStyle}" Click="MaximizeWindow"/>
-                        <Button Content="✕" Style="{StaticResource TitleButtonStyle}" Click="CloseWindow"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
+                               SnapsToDevicePixels="True"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                        <!-- Заголовок (StackPanel с TextBlock) -->
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <!-- "D" -->
+                            <TextBlock Text="D" 
+                                       FontFamily="{StaticResource EternalUiFont}" 
+                                       Foreground="White"
+                                       FontSize="15"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                            
+                            <!-- "e" с отрицательным Margin -->
+                            <TextBlock Text="e" 
+                                       FontFamily="{StaticResource EternalUiFont}" 
+                                       Foreground="White"
+                                       FontSize="12"
+                                       Margin="0,2.9,0,0"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                            
+                            <!-- "FR" -->
+                            <TextBlock Text="FR" 
+                                       FontFamily="{StaticResource EternalUiFont}" 
+                                       Foreground="White"
+                                       FontSize="15"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                            
+                            <!-- "a" с отрицательным Margin -->
+                            <TextBlock Text="a" 
+                                       FontFamily="{StaticResource EternalUiFont}" 
+                                       Foreground="White"
+                                       FontSize="12"
+                                       Margin="0,2.9,0,0"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                            
+                            <!-- "G" -->
+                            <TextBlock Text="G" 
+                                       FontFamily="{StaticResource EternalUiFont}" 
+                                       Foreground="White"
+                                       FontSize="15"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+
+                            <!-- "Manager" -->
+                            <TextBlock Text=" Manager" 
+                                       FontFamily="{StaticResource EternalUiFont}" 
+                                       Foreground="White"
+                                       FontSize="12"
+                                       Margin="0,2.9,0,0"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                            
+                            <!-- Разделитель и динамический заголовок -->
+                            <TextBlock Text=" | " 
+                                       FontFamily="Segoe UI" 
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       FontSize="15"
+                                       Margin="0,-3,0,0"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                            
+                            <TextBlock Text="{Binding WindowTitle}" 
+                                       FontFamily="Segoe UI" 
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       FontSize="15"
+                                       Margin="0,-1.5,0,0"
+                                       TextOptions.TextFormattingMode="Ideal"
+                                       TextOptions.TextRenderingMode="ClearType"
+                                       TextOptions.TextHintingMode="Animated"
+                                       RenderOptions.ClearTypeHint="Enabled"
+                                       UseLayoutRounding="True"/>
+                        </StackPanel>
+                        
+                        <!-- Кнопки управления окном -->
+                        <StackPanel Grid.Column="2"
+                                   Orientation="Horizontal" 
+                                   HorizontalAlignment="Right">
+                            <Button Content="─" Style="{StaticResource TitleButtonStyle}" Click="MinimizeWindow"/>
+                            <Button Content="□" Style="{StaticResource TitleButtonStyle}" Click="MaximizeWindow"/>
+                            <Button Content="✕" Style="{StaticResource TitleButtonStyle}" Click="CloseWindow"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
                 
                 <!-- Основное содержимое -->
                 <Border Grid.Row="1" CornerRadius="0,0,5,5">
