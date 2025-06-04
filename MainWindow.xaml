@@ -930,15 +930,48 @@
                                                         <Button Tag="vq3" 
                                                                 Click="LaunchMap_Click"
                                                                 Style="{StaticResource LaunchButtonStyle}">
-                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                                                <TextBlock Text="VQ3" 
-                                                                         Foreground="{StaticResource VQ3TextColor}"
-                                                                         Effect="{StaticResource ShadowEffect}"/>
-                                                                <TextBlock Text=" ▶" 
-                                                                         Foreground="{StaticResource VQ3TextColor}"
-                                                                         Margin="3,0,0,0"
-                                                                         Effect="{StaticResource ShadowEffect}"/>
-                                                            </StackPanel>
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}"
+                                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                                            CornerRadius="2">
+                                                                        <StackPanel x:Name="contentPanel"
+                                                                                  Orientation="Horizontal" 
+                                                                                  VerticalAlignment="Center" 
+                                                                                  HorizontalAlignment="Center"
+                                                                                  Margin="0,-1,0,0">
+                                                                            <TextBlock Text="VQ3" 
+                                                                                     Foreground="{StaticResource VQ3TextColor}"
+                                                                                     Effect="{StaticResource ShadowEffect}"/>
+                                                                            <TextBlock Text=" ▶" 
+                                                                                     Foreground="{StaticResource VQ3TextColor}"
+                                                                                     Margin="3,0,0,0"
+                                                                                     Effect="{StaticResource ShadowEffect}"/>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsPressed" Value="True">
+                                                                            <Setter TargetName="contentPanel" Property="RenderTransform">
+                                                                                <Setter.Value>
+                                                                                    <TranslateTransform Y="1" X="1"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Setter TargetName="contentPanel" Property="Effect">
+                                                                                <Setter.Value>
+                                                                                    <DropShadowEffect 
+                                                                                        Color="#FF000000"
+                                                                                        Direction="315"
+                                                                                        ShadowDepth="0.5"
+                                                                                        BlurRadius="0"
+                                                                                        Opacity="1"
+                                                                                        RenderingBias="Quality"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
                                                         </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -949,15 +982,48 @@
                                                         <Button Tag="cpm" 
                                                                 Click="LaunchMap_Click"
                                                                 Style="{StaticResource LaunchButtonStyle}">
-                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                                                <TextBlock Text="CPM" 
-                                                                         Foreground="{StaticResource CPMTextColor}"
-                                                                         Effect="{StaticResource ShadowEffect}"/>
-                                                                <TextBlock Text=" ▶" 
-                                                                         Foreground="{StaticResource CPMTextColor}"
-                                                                         Margin="3,0,0,0"
-                                                                         Effect="{StaticResource ShadowEffect}"/>
-                                                            </StackPanel>
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}"
+                                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                                            CornerRadius="2">
+                                                                        <StackPanel x:Name="contentPanel"
+                                                                                  Orientation="Horizontal" 
+                                                                                  VerticalAlignment="Center" 
+                                                                                  HorizontalAlignment="Center"
+                                                                                  Margin="0,-1,0,0">
+                                                                            <TextBlock Text="CPM" 
+                                                                                     Foreground="{StaticResource CPMTextColor}"
+                                                                                     Effect="{StaticResource ShadowEffect}"/>
+                                                                            <TextBlock Text=" ▶" 
+                                                                                     Foreground="{StaticResource CPMTextColor}"
+                                                                                     Margin="3,0,0,0"
+                                                                                     Effect="{StaticResource ShadowEffect}"/>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsPressed" Value="True">
+                                                                            <Setter TargetName="contentPanel" Property="RenderTransform">
+                                                                                <Setter.Value>
+                                                                                    <TranslateTransform Y="1" X="1"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Setter TargetName="contentPanel" Property="Effect">
+                                                                                <Setter.Value>
+                                                                                    <DropShadowEffect 
+                                                                                        Color="#FF000000"
+                                                                                        Direction="315"
+                                                                                        ShadowDepth="0.5"
+                                                                                        BlurRadius="0"
+                                                                                        Opacity="1"
+                                                                                        RenderingBias="Quality"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
                                                         </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -1149,15 +1215,48 @@
                                                     <Button Tag="vq3" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                                            <TextBlock Text="VQ3" 
-                                                                     Foreground="{StaticResource VQ3TextColor}"
-                                                                     Effect="{StaticResource ShadowEffect}"/>
-                                                            <TextBlock Text=" ▶" 
-                                                                     Foreground="{StaticResource VQ3TextColor}"
-                                                                     Margin="3,0,0,0"
-                                                                     Effect="{StaticResource ShadowEffect}"/>
-                                                        </StackPanel>
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="2">
+                                                                    <StackPanel x:Name="contentPanel"
+                                                                              Orientation="Horizontal" 
+                                                                              VerticalAlignment="Center" 
+                                                                              HorizontalAlignment="Center"
+                                                                              Margin="0,-1,0,0">
+                                                                        <TextBlock Text="VQ3" 
+                                                                                 Foreground="{StaticResource VQ3TextColor}"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                        <TextBlock Text=" ▶" 
+                                                                                 Foreground="{StaticResource VQ3TextColor}"
+                                                                                 Margin="3,0,0,0"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="contentPanel" Property="RenderTransform">
+                                                                            <Setter.Value>
+                                                                                <TranslateTransform Y="1" X="1"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Setter TargetName="contentPanel" Property="Effect">
+                                                                            <Setter.Value>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="0.5"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
                                                     </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
@@ -1168,14 +1267,48 @@
                                                     <Button Tag="cpm" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                                            <TextBlock Text="CPM" 
-                                                                     Foreground="{StaticResource CPMTextColor}" Effect="{StaticResource ShadowEffect}"/>
-                                                            <TextBlock Text=" ▶" 
-                                                                     Foreground="{StaticResource CPMTextColor}" 
-                                                                     Margin="3,0,0,0" 
-                                                                     Effect="{StaticResource ShadowEffect}"/>
-                                                        </StackPanel>
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="2">
+                                                                    <StackPanel x:Name="contentPanel"
+                                                                              Orientation="Horizontal" 
+                                                                              VerticalAlignment="Center" 
+                                                                              HorizontalAlignment="Center"
+                                                                              Margin="0,-1,0,0">
+                                                                        <TextBlock Text="CPM" 
+                                                                                 Foreground="{StaticResource CPMTextColor}"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                        <TextBlock Text=" ▶" 
+                                                                                 Foreground="{StaticResource CPMTextColor}"
+                                                                                 Margin="3,0,0,0"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="contentPanel" Property="RenderTransform">
+                                                                            <Setter.Value>
+                                                                                <TranslateTransform Y="1" X="1"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Setter TargetName="contentPanel" Property="Effect">
+                                                                            <Setter.Value>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="0.5"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
                                                     </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
@@ -1340,15 +1473,48 @@
                                                     <Button Tag="vq3" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                                            <TextBlock Text="VQ3" 
-                                                                     Foreground="{StaticResource VQ3TextColor}"
-                                                                     Effect="{StaticResource ShadowEffect}"/>
-                                                            <TextBlock Text=" ▶" 
-                                                                     Foreground="{StaticResource VQ3TextColor}"
-                                                                     Margin="3,0,0,0"
-                                                                     Effect="{StaticResource ShadowEffect}"/>
-                                                        </StackPanel>
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="2">
+                                                                    <StackPanel x:Name="contentPanel"
+                                                                              Orientation="Horizontal" 
+                                                                              VerticalAlignment="Center" 
+                                                                              HorizontalAlignment="Center"
+                                                                              Margin="0,-1,0,0">
+                                                                        <TextBlock Text="VQ3" 
+                                                                                 Foreground="{StaticResource VQ3TextColor}"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                        <TextBlock Text=" ▶" 
+                                                                                 Foreground="{StaticResource VQ3TextColor}"
+                                                                                 Margin="3,0,0,0"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="contentPanel" Property="RenderTransform">
+                                                                            <Setter.Value>
+                                                                                <TranslateTransform Y="1" X="1"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Setter TargetName="contentPanel" Property="Effect">
+                                                                            <Setter.Value>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="0.5"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
                                                     </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
@@ -1359,14 +1525,48 @@
                                                     <Button Tag="cpm" 
                                                             Click="LaunchMap_Click"
                                                             Style="{StaticResource LaunchButtonStyle}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                                            <TextBlock Text="CPM" 
-                                                                     Foreground="{StaticResource CPMTextColor}" Effect="{StaticResource ShadowEffect}"/>
-                                                            <TextBlock Text=" ▶" 
-                                                                     Foreground="{StaticResource CPMTextColor}" 
-                                                                     Margin="3,0,0,0"
-                                                                     Effect="{StaticResource ShadowEffect}"/>
-                                                        </StackPanel>
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="2">
+                                                                    <StackPanel x:Name="contentPanel"
+                                                                              Orientation="Horizontal" 
+                                                                              VerticalAlignment="Center" 
+                                                                              HorizontalAlignment="Center"
+                                                                              Margin="0,-1,0,0">
+                                                                        <TextBlock Text="CPM" 
+                                                                                 Foreground="{StaticResource CPMTextColor}"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                        <TextBlock Text=" ▶" 
+                                                                                 Foreground="{StaticResource CPMTextColor}"
+                                                                                 Margin="3,0,0,0"
+                                                                                 Effect="{StaticResource ShadowEffect}"/>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="contentPanel" Property="RenderTransform">
+                                                                            <Setter.Value>
+                                                                                <TranslateTransform Y="1" X="1"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Setter TargetName="contentPanel" Property="Effect">
+                                                                            <Setter.Value>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="0.5"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
                                                     </Button>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
