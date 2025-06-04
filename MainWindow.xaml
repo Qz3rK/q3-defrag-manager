@@ -867,21 +867,59 @@
                                                         <Button Click="ToggleFavorite_Click"
                                                                 Background="Transparent"
                                                                 BorderThickness="0"
-                                                                Padding="0">
-                                                            <TextBlock Text="★" 
-                                                                       FontSize="19"
-                                                                       Margin="0,2,0,0"
-                                                                       Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
-                                                                <TextBlock.Effect>
-                                                                    <DropShadowEffect 
-                                                                        Color="#FF000000"
-                                                                        Direction="315"
-                                                                        ShadowDepth="1"
-                                                                        BlurRadius="0"
-                                                                        Opacity="1"
-                                                                        RenderingBias="Quality"/>
-                                                                </TextBlock.Effect>
-                                                            </TextBlock>
+                                                                Padding="10"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Grid Width="40" Height="40">
+                                                                        <Border x:Name="hoverArea" 
+                                                                                Background="Transparent"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                VerticalAlignment="Stretch"/>
+                                                                        <TextBlock x:Name="star" 
+                                                                                   Text="★" 
+                                                                                   FontSize="19"
+                                                                                   Margin="0,2,0,0"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
+                                                                            <TextBlock.Effect>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="1"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </TextBlock.Effect>
+                                                                        </TextBlock>
+                                                                    </Grid>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="star" Property="Foreground" Value="#A6FFD700"/>
+                                                                        </Trigger>
+                                                                        <Trigger Property="IsPressed" Value="True">
+                                                                            <Setter TargetName="star" Property="RenderTransform">
+                                                                                <Setter.Value>
+                                                                                    <TranslateTransform Y="1" X="1"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Setter TargetName="star" Property="Effect">
+                                                                                <Setter.Value>
+                                                                                    <DropShadowEffect 
+                                                                                        Color="#FF000000"
+                                                                                        Direction="315"
+                                                                                        ShadowDepth="0.5"
+                                                                                        BlurRadius="0"
+                                                                                        Opacity="1"
+                                                                                        RenderingBias="Quality"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
                                                         </Button>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -1044,27 +1082,65 @@
                                         </DataGridTemplateColumn>
                                         <DataGridTemplateColumn Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Button Click="ToggleFavorite_Click"
-                                                            Background="Transparent"
-                                                            BorderThickness="0"
-                                                            Padding="0">
-                                                        <TextBlock Text="★" 
-                                                                   FontSize="19"
-                                                                   Margin="0,2,0,0"
-                                                                   Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
-                                                            <TextBlock.Effect>
-                                                                <DropShadowEffect 
-                                                                    Color="#FF000000"
-                                                                    Direction="315"
-                                                                    ShadowDepth="1"
-                                                                    BlurRadius="0"
-                                                                    Opacity="1"
-                                                                    RenderingBias="Quality"/>
-                                                            </TextBlock.Effect>
-                                                        </TextBlock>
-                                                    </Button>
-                                                </DataTemplate>
+                                                    <DataTemplate>
+                                                        <Button Click="ToggleFavorite_Click"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="10"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Grid Width="40" Height="40">
+                                                                        <Border x:Name="hoverArea" 
+                                                                                Background="Transparent"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                VerticalAlignment="Stretch"/>
+                                                                        <TextBlock x:Name="star" 
+                                                                                   Text="★" 
+                                                                                   FontSize="19"
+                                                                                   Margin="0,2,0,0"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
+                                                                            <TextBlock.Effect>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="1"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </TextBlock.Effect>
+                                                                        </TextBlock>
+                                                                    </Grid>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="star" Property="Foreground" Value="#A6FFD700"/>
+                                                                        </Trigger>
+                                                                        <Trigger Property="IsPressed" Value="True">
+                                                                            <Setter TargetName="star" Property="RenderTransform">
+                                                                                <Setter.Value>
+                                                                                    <TranslateTransform Y="1" X="1"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Setter TargetName="star" Property="Effect">
+                                                                                <Setter.Value>
+                                                                                    <DropShadowEffect 
+                                                                                        Color="#FF000000"
+                                                                                        Direction="315"
+                                                                                        ShadowDepth="0.5"
+                                                                                        BlurRadius="0"
+                                                                                        Opacity="1"
+                                                                                        RenderingBias="Quality"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                         <DataGridTemplateColumn Width="100">
@@ -1197,27 +1273,65 @@
                                         </DataGridTemplateColumn>
                                         <DataGridTemplateColumn Width="50">
                                             <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Button Click="ToggleFavorite_Click"
-                                                            Background="Transparent"
-                                                            BorderThickness="0"
-                                                            Padding="0">
-                                                        <TextBlock Text="★" 
-                                                                   FontSize="19"
-                                                                   Margin="0,2,0,0"
-                                                                   Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
-                                                            <TextBlock.Effect>
-                                                                <DropShadowEffect 
-                                                                    Color="#FF000000"
-                                                                    Direction="315"
-                                                                    ShadowDepth="1"
-                                                                    BlurRadius="0"
-                                                                    Opacity="1"
-                                                                    RenderingBias="Quality"/>
-                                                            </TextBlock.Effect>
-                                                        </TextBlock>
-                                                    </Button>
-                                                </DataTemplate>
+                                                    <DataTemplate>
+                                                        <Button Click="ToggleFavorite_Click"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="10"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Grid Width="40" Height="40">
+                                                                        <Border x:Name="hoverArea" 
+                                                                                Background="Transparent"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                VerticalAlignment="Stretch"/>
+                                                                        <TextBlock x:Name="star" 
+                                                                                   Text="★" 
+                                                                                   FontSize="19"
+                                                                                   Margin="0,2,0,0"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Foreground="{Binding IsFavorite, Converter={StaticResource FavoriteColorConverter}}">
+                                                                            <TextBlock.Effect>
+                                                                                <DropShadowEffect 
+                                                                                    Color="#FF000000"
+                                                                                    Direction="315"
+                                                                                    ShadowDepth="1"
+                                                                                    BlurRadius="0"
+                                                                                    Opacity="1"
+                                                                                    RenderingBias="Quality"/>
+                                                                            </TextBlock.Effect>
+                                                                        </TextBlock>
+                                                                    </Grid>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="star" Property="Foreground" Value="#A6FFD700"/>
+                                                                        </Trigger>
+                                                                        <Trigger Property="IsPressed" Value="True">
+                                                                            <Setter TargetName="star" Property="RenderTransform">
+                                                                                <Setter.Value>
+                                                                                    <TranslateTransform Y="1" X="1"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Setter TargetName="star" Property="Effect">
+                                                                                <Setter.Value>
+                                                                                    <DropShadowEffect 
+                                                                                        Color="#FF000000"
+                                                                                        Direction="315"
+                                                                                        ShadowDepth="0.5"
+                                                                                        BlurRadius="0"
+                                                                                        Opacity="1"
+                                                                                        RenderingBias="Quality"/>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                         <DataGridTemplateColumn Width="100">
