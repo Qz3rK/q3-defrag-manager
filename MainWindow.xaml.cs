@@ -257,7 +257,7 @@ namespace DefragManager
                 LogSettingsMessage("Window loaded successfully");
 
                 // Инициализируем посещенные вкладки
-                _visitedTabs.Add(AllMapsTab); // Первая вкладка уже посещена при загрузке
+                _tabVisitCounts[AllMapsTab] = 1; // Первая вкладка уже посещена при загрузке
             }
             catch (Exception ex)
             {
@@ -803,7 +803,7 @@ namespace DefragManager
             }
         }
 
-        private readonly HashSet<TabItem> _visitedTabs = new HashSet<TabItem>();
+        private readonly Dictionary<TabItem, int> _tabVisitCounts = new Dictionary<TabItem, int>();
 
         private async void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -824,10 +824,12 @@ namespace DefragManager
 
                 try
                 {
-                    // Обновляем ItemsSource только при первом посещении вкладки
-                    if (!_visitedTabs.Contains(selectedTab))
+                    // Обновляем ItemsSource при первом и втором посещении вкладки
+                    if (!_tabVisitCounts.TryGetValue(selectedTab, out var visitCount) || visitCount < 2)
                     {
-                        _visitedTabs.Add(selectedTab);
+                        // Увеличиваем счетчик посещений
+                        _tabVisitCounts[selectedTab] = visitCount + 1;
+                        
                         Dispatcher.Invoke(() =>
                         {
                             if (selectedTab == FavoritesTab)
