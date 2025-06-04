@@ -565,7 +565,16 @@
                                Margin="5,0,5,0"
                                VerticalAlignment="Center"
                                SnapsToDevicePixels="True"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                               RenderOptions.BitmapScalingMode="HighQuality">
+                            <Image.Effect>
+                                <DropShadowEffect Color="#FF000000"
+                                                 Direction="315"
+                                                 ShadowDepth="1"
+                                                 BlurRadius="0"
+                                                 Opacity="1"
+                                                 RenderingBias="Quality"/>
+                            </Image.Effect>
+                        </Image>
 
                         <!-- Заголовок (StackPanel с TextBlock) -->
                         <StackPanel Grid.Column="1"
@@ -580,7 +589,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                             
                             <!-- "e" с отрицательным Margin -->
                             <TextBlock Text="e" 
@@ -592,7 +610,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                             
                             <!-- "FR" -->
                             <TextBlock Text="FR" 
@@ -603,7 +630,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                             
                             <!-- "a" с отрицательным Margin -->
                             <TextBlock Text="a" 
@@ -615,7 +651,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                             
                             <!-- "G" -->
                             <TextBlock Text="G" 
@@ -626,7 +671,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
 
                             <!-- "Manager" -->
                             <TextBlock Text=" Manager" 
@@ -638,7 +692,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                             
                             <!-- Разделитель и динамический заголовок -->
                             <TextBlock Text=" | " 
@@ -651,7 +714,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                             
                             <TextBlock Text="{Binding WindowTitle}" 
                                        FontFamily="Segoe UI" 
@@ -663,7 +735,16 @@
                                        TextOptions.TextRenderingMode="ClearType"
                                        TextOptions.TextHintingMode="Animated"
                                        RenderOptions.ClearTypeHint="Enabled"
-                                       UseLayoutRounding="True"/>
+                                       UseLayoutRounding="True">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#FF000000"
+                                                     Direction="315"
+                                                     ShadowDepth="1"
+                                                     BlurRadius="0"
+                                                     Opacity="1"
+                                                     RenderingBias="Quality"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
                         </StackPanel>
                         
                         <!-- Кнопки управления окном -->
