@@ -22,9 +22,26 @@
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
 
-        <!-- Оптимизации сборки -->
+    <!-- Оптимизации сборки -->
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
+
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <PublishTrimmed>false</PublishTrimmed>
+    <DebugType>none</DebugType>                  <!-- Уменьшает размер -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile> <!-- Сжатие -->
+
+    <!-- Метаданные -->
+    <Authors>Qz3rK</Authors>
+    <Copyright>© 2025 Qz3rK. MIT License.</Copyright>
+    <Product>DeFRaG Manager</Product>
+    
+    <!-- Версия -->
+    <Version>1.1.0</Version>
+    <FileVersion>1.1.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+
   </PropertyGroup>
 
   <ItemGroup>
