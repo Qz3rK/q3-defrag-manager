@@ -1,13 +1,12 @@
-<!-- Copyright (c) 2025 Qz3rK -->
+﻿<!-- Copyright (c) 2025 Qz3rK -->
 <!-- License: MIT (https://opensource.org/licenses/MIT) -->
-
 <Application x:Class="DefragManager.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:options="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- Глобальные настройки рендеринга -->
+        
         <Style TargetType="FrameworkElement">
             <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
@@ -17,8 +16,7 @@
             <Setter Property="SnapsToDevicePixels" Value="False"/>
             <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
         </Style>
-
-        <!-- Основные стили для текстовых элементов -->
+        
         <Style TargetType="{x:Type TextElement}">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -28,7 +26,6 @@
             <Setter Property="FontSize" Value="14"/>
         </Style>
         
-        <!-- Стили для контролов -->
         <Style TargetType="{x:Type Control}">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -38,8 +35,7 @@
             <Setter Property="Padding" Value="6,3"/>
             <Setter Property="Margin" Value="2"/>
         </Style>
-
-        <!-- Оптимизированные стили для TextBlock -->
+        
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -53,8 +49,7 @@
             <Setter Property="LineHeight" Value="20"/>
             <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
         </Style>
-
-        <!-- Улучшенные стили для Label -->
+        
         <Style TargetType="{x:Type Label}">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -66,8 +61,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Padding" Value="0,0,5,0"/>
         </Style>
-
-        <!-- Оптимизированные стили для Button -->
+        
         <Style TargetType="{x:Type Button}">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -98,8 +92,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <!-- Улучшенные стили для TextBox -->
+        
         <Style TargetType="{x:Type TextBox}">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/EternalUiBold.ttf#Eternal UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
