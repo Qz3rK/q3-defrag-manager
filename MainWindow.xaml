@@ -284,6 +284,40 @@
                         </Style>
                     </Image.Style>
                 </Image>
+
+                <!-- Вертикальная виньетка (сверху и снизу - без изменений) -->
+                <Rectangle>
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                            <GradientStop Color="#80000000" Offset="0"/>
+                            <GradientStop Color="#80000000" Offset="0.05"/>
+                            <GradientStop Color="#00000000" Offset="0.15"/>
+                            <GradientStop Color="#00000000" Offset="0.85"/>
+                            <GradientStop Color="#80000000" Offset="0.95"/>
+                            <GradientStop Color="#80000000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+
+                <!-- Горизонтальная виньетка (суженные боковые края + плоский эффект) -->
+                <Rectangle>
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <!-- Левый край -->
+                            <GradientStop Color="#60000000" Offset="0"/>      <!-- 38% прозрачности (мягче) -->
+                            <GradientStop Color="#60000000" Offset="0.01"/>  <!-- Очень узкая полоса -->
+                            <GradientStop Color="#00000000" Offset="0.08"/>  <!-- Быстрый спад -->
+                            
+                            <!-- Центр (полная прозрачность) -->
+                            <GradientStop Color="#00000000" Offset="0.92"/>  
+                            
+                            <!-- Правый край -->
+                            <GradientStop Color="#60000000" Offset="0.99"/>  <!-- Очень узкая полоса -->
+                            <GradientStop Color="#60000000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+
                 <TextBlock Text="No preview" 
                            Foreground="{DynamicResource TextColor}"
                            HorizontalAlignment="Center"
