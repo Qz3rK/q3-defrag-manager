@@ -257,7 +257,9 @@ namespace DefragManager
                 LogSettingsMessage("Window loaded successfully");
 
                 // Инициализируем посещенные вкладки
-                _tabVisitCounts[AllMapsTab] = 1; // Первая вкладка уже посещена при загрузке
+                _tabVisitCounts[AllMapsTab] = 0;  // Будет 2 обновления (0 → 1 → 2)
+                _tabVisitCounts[FavoritesTab] = 0; // Будет 1 обновление (0 → 1)
+                _tabVisitCounts[RecentTab] = 0;    // Будет 1 обновление (0 → 1)
             }
             catch (Exception ex)
             {
@@ -824,10 +826,12 @@ namespace DefragManager
 
                 try
                 {
-                    // Обновляем ItemsSource при первом и втором посещении вкладки
-                    if (!_tabVisitCounts.TryGetValue(selectedTab, out var visitCount) || visitCount < 2)
+                    // Определяем максимальное количество обновлений для каждой вкладки
+                    int maxUpdates = selectedTab == AllMapsTab ? 2 : 1;
+                    
+                    // Проверяем нужно ли обновлять ItemsSource
+                    if (!_tabVisitCounts.TryGetValue(selectedTab, out var visitCount) || visitCount < maxUpdates)
                     {
-                        // Увеличиваем счетчик посещений
                         _tabVisitCounts[selectedTab] = visitCount + 1;
                         
                         Dispatcher.Invoke(() =>
