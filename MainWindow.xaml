@@ -71,7 +71,35 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            
+            <Style.Triggers>
+                <!-- Триггеры должны быть с более высоким приоритетом -->
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#606060"/> <!-- Комбинированный эффект -->
+                </MultiDataTrigger>
+                
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#505050"/> <!-- Выделение -->
+                </Trigger>
+                <!--
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3A3A3A"/> 
+                </Trigger>
+                Наведение -->
+            </Style.Triggers>
         </Style>
+
+        <!-- Цвета для выделения строк DataGrid -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#505050"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#505050"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#505050"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#E0E0E0"/>
 
         <SolidColorBrush x:Key="VQ3HoverColor" Color="#FF8A4A4A"/> <!-- Насыщенный светло-красный -->
         <SolidColorBrush x:Key="CPMHoverColor" Color="#FF4A4A8A"/> <!-- Насыщенный светло-синий -->
