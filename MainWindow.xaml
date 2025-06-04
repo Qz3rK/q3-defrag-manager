@@ -272,7 +272,7 @@
                 <Image Source="{Binding Thumbnail}" 
                        Stretch="UniformToFill"
                        Margin="0"
-                       RenderOptions.BitmapScalingMode="LowQuality">
+                       RenderOptions.BitmapScalingMode="HighQuality">
                     <Image.Style>
                         <Style TargetType="Image">
                             <Setter Property="Visibility" Value="Visible"/>
