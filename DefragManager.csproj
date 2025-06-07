@@ -1,6 +1,5 @@
 <!-- Copyright (c) 2025 Qz3rK -->
 <!-- License: MIT (https://opensource.org/licenses/MIT) -->
-
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -22,25 +21,22 @@
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
 
-    <!-- Оптимизации сборки -->
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
 
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
-    <DebugType>none</DebugType>                  <!-- Уменьшает размер -->
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile> <!-- Сжатие -->
+    <DebugType>none</DebugType>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 
-    <!-- Метаданные -->
     <Authors>Qz3rK</Authors>
     <Copyright>© 2025 Qz3rK. MIT License.</Copyright>
     <Product>DeFRaG Manager</Product>
     
-    <!-- Версия -->
-    <Version>1.1.0</Version>
-    <FileVersion>1.1.0</FileVersion>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <Version>1.1.1</Version>
+    <FileVersion>1.1.1</FileVersion>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
 
   </PropertyGroup>
 
@@ -61,20 +57,16 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     
-    <!-- Добавляем файл конвертера -->
     <Compile Include="FavoriteToColorConverter.cs" />
 
-   <!-- Добавляем шрифт в ресурсы -->
     <Resource Include="Assets\Fonts\EternalUiBold.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
 
-    <!-- Добавляем иконку -->
     <Resource Include="Assets\Icons\icon.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
 
-    <!-- Добавляем ICO файл -->
     <Resource Include="Assets\Icons\icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

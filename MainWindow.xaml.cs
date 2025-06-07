@@ -1,6 +1,5 @@
-// Copyright (c) 2025 Qz3rK 
+﻿// Copyright (c) 2025 Qz3rK 
 // License: MIT (https://opensource.org/licenses/MIT)
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +21,6 @@ using System.Timers;
 using System.ComponentModel;
 using System.Windows.Navigation;
 using System.Diagnostics;
-
 namespace DefragManager
 {
     public class NullToVisibilityConverter : IValueConverter
@@ -31,13 +29,11 @@ namespace DefragManager
         {
             return value == null ? Visibility.Visible : Visibility.Collapsed;
         }
-
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
-
     public class MapInfo : IDisposable
     {
         public string Name { get; set; } = "";
@@ -45,9 +41,8 @@ namespace DefragManager
         public string VQ3Time { get; set; } = "";
         public string CPMTime { get; set; } = "";
         public bool IsFavorite { get; set; }
-
         public ImageSource? Thumbnail
-        { 
+        {
             get => _thumbnail;
             set
             {
@@ -58,10 +53,8 @@ namespace DefragManager
                 }
             }
         }
-
         public void Dispose() => (_thumbnail as IDisposable)?.Dispose();
     }
-
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private const int DisplayMapsCount = 10;
@@ -72,10 +65,8 @@ namespace DefragManager
         private const int DemoCheckInterval = 15000;
         private const int DemoCacheDuration = 300;
         private const int SearchDelay = 500;
-
         private const int ThumbnailWidth = 200;
         private const int ThumbnailHeight = 100;
-
         private string _playerName = "";
         private List<MapInfo> _allMaps = new();
         private List<MapInfo> _filteredMaps = new();
@@ -85,7 +76,6 @@ namespace DefragManager
         private Dictionary<string, DemoRecord> _demoCache = new();
         private CancellationTokenSource _searchCts = new();
         private DateTime _lastSearchTime = DateTime.MinValue;
-
         private readonly System.Timers.Timer _demoCheckTimer;
         private CancellationTokenSource _thumbnailLoadingCts = new();
         private readonly SemaphoreSlim _thumbnailLoadSemaphore = new(MaxThumbnailThreads);
@@ -93,19 +83,14 @@ namespace DefragManager
         private bool _isDisposed = false;
         private readonly Random _random = new();
         private DateTime _lastDemoScanTime = DateTime.MinValue;
-
         private string _enginePath = "oDFe.x64.exe";
-
         private static readonly Dictionary<string, BitmapImage> _thumbnailCache = new Dictionary<string, BitmapImage>();
 
-        // Реализация INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
-
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         public class DemoRecord
         {
             public string VQ3Time { get; set; } = "";
@@ -113,14 +98,12 @@ namespace DefragManager
             public string DemoFileName { get; set; } = "";
             public DateTime LastUpdate { get; set; }
         }
-
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = this;
             WindowTitle = _playerName;
-
-            CompositionTarget.Rendering += (s, e) => 
+            CompositionTarget.Rendering += (s, e) =>
             {
                 if ((DateTime.Now - _lastActivityCheck).TotalSeconds > 0.5)
                 {
@@ -128,7 +111,6 @@ namespace DefragManager
                     _lastActivityCheck = DateTime.Now;
                 }
             };
-
             EnsureMgrDataDirectoryExists();
             InitializeDefaultSettings();
             RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
@@ -136,19 +118,18 @@ namespace DefragManager
             _demoCheckTimer.Elapsed += DemoCheckTimerElapsed;
             Loaded += OnWindowLoaded;
             Closed += OnWindowClosed;
-            
-            // Установка темной темы по умолчанию
+
+
             SetDarkTheme();
         }
-
         private async Task DelayedThumbnailLoad(TabItem selectedTab, CancellationToken token)
         {
             if (!_isWindowActive) return;
-            
+
             try
             {
                 await Task.Delay(3000, token);
-                
+
                 if (selectedTab.IsSelected && _isWindowActive && !token.IsCancellationRequested)
                 {
                     if (selectedTab == FavoritesTab)
@@ -172,13 +153,12 @@ namespace DefragManager
             }
             catch (OperationCanceledException)
             {
-                // Игнорируем отмену
+
             }
         }
-
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // Обработка скроллинга колесиком мыши
+
             ScrollViewer scrollViewer = sender as ScrollViewer;
             if (scrollViewer != null)
             {
@@ -193,85 +173,78 @@ namespace DefragManager
                 e.Handled = true;
             }
         }
-
         private async void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 LogSettingsMessage("Window loading started");
-                
-                // 1. Загружаем настройки
+
+
                 LoadSettings();
                 LogSettingsMessage($"Player name: '{_playerName}'");
-                
-                // 2. Устанавливаем имя в UI
-                Dispatcher.Invoke(() => 
+
+
+                Dispatcher.Invoke(() =>
                 {
                     PlayerNameBox.Text = _playerName;
                     if (string.IsNullOrEmpty(_playerName))
                     {
-                        MessageBox.Show("Please enter your player name...", 
-                                      "Player Name Required", 
-                                      MessageBoxButton.OK, 
+                        MessageBox.Show("Please enter your player name...",
+                                      "Player Name Required",
+                                      MessageBoxButton.OK,
                                       MessageBoxImage.Information);
                     }
                 });
 
-                // 3. Инициализируем счетчик демо
                 if (Directory.Exists("defrag/demos"))
                 {
                     _lastDemoCount = Directory.GetFiles("defrag/demos", "*.dm_68", SearchOption.TopDirectoryOnly).Length;
                     LogSettingsMessage($"Initial demo count: {_lastDemoCount}");
                 }
 
-                // 4. Загружаем данные асинхронно
-                await Task.Run(() => 
+                await Task.Run(() =>
                 {
                     LogSettingsMessage("Loading maps cache...");
                     LoadCache();
-                    
+
                     LogSettingsMessage("Loading demo cache...");
                     LoadDemoCache();
-                    
+
                     if (!string.IsNullOrEmpty(_playerName))
                     {
                         LogSettingsMessage("Initializing map times...");
                         InitializeMapTimes();
-                        
+
                         LogSettingsMessage("Cleaning up demo cache...");
                         CleanupDemoCache();
                     }
                 });
 
-                // 5. Обновляем интерфейс
                 LogSettingsMessage("Updating UI...");
                 UpdateFilteredMaps();
-                UpdateFavoritesState(); // Добавлено обновление состояния избранных карт
+                UpdateFavoritesState();
                 RefreshMapTimesUI();
 
-                // 6. Запускаем фоновые задачи
                 LogSettingsMessage("Starting background tasks...");
                 _ = Task.Run(() => LoadAllThumbnails());
                 SetupTimer();
-                
+
                 LogSettingsMessage("Window loaded successfully");
 
-                // Инициализируем посещенные вкладки
-                _tabVisitCounts[AllMapsTab] = 0;  // Будет 2 обновления (0 → 1 → 2)
-                _tabVisitCounts[FavoritesTab] = 0; // Будет 1 обновление (0 → 1)
-                _tabVisitCounts[RecentTab] = 0;    // Будет 1 обновление (0 → 1)
+                _tabVisitCounts[AllMapsTab] = 0;
+                _tabVisitCounts[FavoritesTab] = 0;
+                _tabVisitCounts[RecentTab] = 0;
             }
             catch (Exception ex)
             {
                 LogSettingsMessage($"Error in OnWindowLoaded: {ex.Message}");
-                MessageBox.Show($"Initialization failed: {ex.Message}", 
-                              "Error", 
-                              MessageBoxButton.OK, 
+                MessageBox.Show($"Initialization failed: {ex.Message}",
+                              "Error",
+                              MessageBoxButton.OK,
                               MessageBoxImage.Error);
                 Close();
             }
         }
-
         private void SaveAllDemoCache()
         {
             try
@@ -285,7 +258,7 @@ namespace DefragManager
                         var mapName = parts[0];
                         var physics = parts[1];
                         var time = physics == "vq3" ? kv.Value.VQ3Time : kv.Value.CPMTime;
-                        
+
                         lines.Add($"{mapName}|{kv.Value.VQ3Time}|{kv.Value.CPMTime}|{kv.Value.DemoFileName}|{kv.Value.LastUpdate.ToBinary()}");
                     }
                 }
@@ -296,8 +269,6 @@ namespace DefragManager
                 LogSettingsMessage($"Error saving demo cache: {ex.Message}");
             }
         }
-
-
         private async Task LoadAllThumbnails()
         {
             if (!_isWindowActive) return;
@@ -305,11 +276,11 @@ namespace DefragManager
             {
                 var token = _thumbnailLoadingCts.Token;
                 var tasks = new List<Task>();
-                
+
                 foreach (var map in _filteredMaps)
                 {
                     if (token.IsCancellationRequested) break;
-                    
+
                     if (map.Thumbnail == null && _mapThumbnails.TryGetValue(map.Name, out var thumbPath))
                     {
                         await _thumbnailLoadSemaphore.WaitAsync(token);
@@ -317,7 +288,6 @@ namespace DefragManager
                             .ContinueWith(t => _thumbnailLoadSemaphore.Release(), token));
                     }
                 }
-
                 await Task.WhenAll(tasks);
             }
             catch (Exception ex)
@@ -325,22 +295,20 @@ namespace DefragManager
                 LogThumbnailMessage($"Error loading all thumbnails: {ex.Message}");
             }
         }
-
         private void LogThumbnailMessage(string message)
         {
             try
             {
                 File.AppendAllText(Path.Combine("mgrdata", "thmbn.log"), $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}\n");
             }
-            catch { /* ignore logging errors */ }
+            catch { }
         }
-
         private void LoadDemoCache()
         {
             try
             {
-                _demoCache.Clear(); // Очищаем перед загрузкой
-                
+                _demoCache.Clear();
+
                 if (File.Exists(Path.Combine("mgrdata", "democache.dat")))
                 {
                     foreach (var line in File.ReadAllLines(Path.Combine("mgrdata", "democache.dat")))
@@ -351,12 +319,12 @@ namespace DefragManager
                             var demoFileName = parts[3];
                             var demoName = Path.GetFileNameWithoutExtension(demoFileName);
                             var mapName = ExtractMapNameFromDemo(demoName);
-                            
+
                             if (!string.IsNullOrEmpty(mapName))
                             {
                                 var physics = demoName.Contains("[df.cpm]") ? "cpm" : "vq3";
                                 var cacheKey = $"{mapName}|{physics}";
-                                
+
                                 _demoCache[cacheKey] = new DemoRecord
                                 {
                                     VQ3Time = physics == "vq3" ? parts[1] : "",
@@ -374,20 +342,19 @@ namespace DefragManager
                 LogSettingsMessage($"Error loading demo cache: {ex.Message}");
             }
         }
-
         private string ExtractMapNameFromDemo(string demoName)
         {
             try
             {
-                // Пример формата имени демо: "pornstar-18percent[df.cpm]00.32.872(Qz3rK.Russia).dm_68"
-                // Ищем открывающую квадратную скобку с режимом
+
+
                 int modeStart = demoName.IndexOf('[');
                 if (modeStart <= 0) return null;
-                
-                // Имя карты - часть до квадратной скобки с режимом
+
+
                 string mapName = demoName.Substring(0, modeStart).Trim();
-                
-                // Удаляем возможные постфиксы типа [df.cpm] если они есть в начале
+
+
                 if (mapName.Contains("[") && mapName.Contains("]"))
                 {
                     int bracketStart = mapName.IndexOf('[');
@@ -396,7 +363,7 @@ namespace DefragManager
                         mapName = mapName.Substring(0, bracketStart).Trim();
                     }
                 }
-                
+
                 return mapName;
             }
             catch
@@ -404,7 +371,6 @@ namespace DefragManager
                 return null;
             }
         }
-
         private void SaveDemoCache()
         {
             try
@@ -412,7 +378,7 @@ namespace DefragManager
                 var lines = new List<string>();
                 foreach (var kv in _demoCache)
                 {
-                    // Сохраняем только если есть имя файла демо (значит это демо текущего игрока)
+
                     if (!string.IsNullOrEmpty(kv.Value.DemoFileName))
                     {
                         lines.Add($"{kv.Key}|{kv.Value.VQ3Time}|{kv.Value.CPMTime}|{kv.Value.DemoFileName}|{kv.Value.LastUpdate.ToBinary()}");
@@ -420,28 +386,26 @@ namespace DefragManager
                 }
                 File.WriteAllLines(Path.Combine("mgrdata", "democache.dat"), lines);
             }
-            catch { /* ignored */ }
+            catch { }
         }
-
         private void OnWindowClosed(object? sender, EventArgs e)
         {
             try
             {
                 LogSettingsMessage("Window closing started");
-                
-                // Сохраняем имя игрока
+
+
                 _playerName = PlayerNameBox?.Text?.Trim() ?? "";
                 if (!string.IsNullOrEmpty(_playerName))
                 {
                     File.WriteAllText(Path.Combine("mgrdata", "name.dat"), _playerName);
                 }
-                
-                // Сохраняем весь кеш демо
+
+
                 SaveAllDemoCache();
 
-                // Сохраняем кеш миниатюр
                 SaveThumbnailCache();
-                
+
                 LogSettingsMessage("Window closed successfully");
             }
             catch (Exception ex)
@@ -453,12 +417,10 @@ namespace DefragManager
                 CleanupResources();
             }
         }
-
         private void CleanupResources()
         {
             if (_isDisposed) return;
             _isDisposed = true;
-
             _demoCheckTimer?.Stop();
             _demoCheckTimer?.Dispose();
             _thumbnailLoadingCts?.Cancel();
@@ -466,7 +428,6 @@ namespace DefragManager
             _thumbnailLoadSemaphore?.Dispose();
             _searchCts?.Cancel();
             _searchCts?.Dispose();
-
             foreach (var map in _allMaps) map.Dispose();
             _allMaps.Clear();
             _filteredMaps.Clear();
@@ -474,19 +435,17 @@ namespace DefragManager
             _recentMaps.Clear();
             _mapThumbnails.Clear();
             SaveDemoCache();
-            SaveThumbnailCache(); // Добавлено сохранение кеша миниатюр
-
+            SaveThumbnailCache();
             foreach (var bitmap in _thumbnailCache.Values)
             {
                 bitmap?.Freeze();
             }
         }
-
         private void DemoCheckTimerElapsed(object? sender, ElapsedEventArgs e)
         {
             if (!_isWindowActive) return;
-            
-            Dispatcher.BeginInvoke(new Action(() => 
+
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (_isWindowActive)
                 {
@@ -494,24 +453,22 @@ namespace DefragManager
                 }
             }), DispatcherPriority.Background);
         }
-
         private void SetupTimer() => _demoCheckTimer.Start();
-
         private void LoadSettings()
         {
             try
             {
-                // Загружаем имя из отдельного файла
+
                 var namePath = Path.Combine("mgrdata", "name.dat");
                 if (File.Exists(namePath))
                 {
                     _playerName = File.ReadAllText(namePath).Trim();
-                    WindowTitle = _playerName; // Обновляем WindowTitle
+                    WindowTitle = _playerName;
                     LogSettingsMessage($"Loaded player name: '{_playerName}'");
-                    Dispatcher.Invoke(() => 
+                    Dispatcher.Invoke(() =>
                     {
                         PlayerNameBox.Text = _playerName;
-                        OnPropertyChanged(nameof(WindowTitle)); // Уведомляем об изменении заголовка
+                        OnPropertyChanged(nameof(WindowTitle));
                     });
                 }
                 else
@@ -520,7 +477,6 @@ namespace DefragManager
                     LogSettingsMessage("No player name file found");
                 }
 
-                // Загружаем путь к движку
                 var enginePath = Path.Combine("mgrdata", "engine.dat");
                 if (File.Exists(enginePath))
                 {
@@ -531,92 +487,84 @@ namespace DefragManager
             catch (Exception ex)
             {
                 LogSettingsMessage($"Error in LoadSettings: {ex}");
-                MessageBox.Show($"Failed to load settings: {ex.Message}", "Error", 
+                MessageBox.Show($"Failed to load settings: {ex.Message}", "Error",
                               MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
         private void SaveAllSettings()
         {
             try
             {
                 LogSettingsMessage("SaveAllSettings started");
-                
-                // Получаем значения из UI
+
+
                 _playerName = PlayerNameBox?.Text?.Trim() ?? "";
                 WindowTitle = _playerName;
                 _enginePath = EnginePathBox?.Text?.Trim() ?? "oDFe.x64.exe";
-                
-                // Проверка обязательного поля (имени игрока)
+
+
                 if (string.IsNullOrEmpty(_playerName))
                 {
                     LogSettingsMessage("Empty player name, showing warning");
-                    MessageBox.Show("Please enter a valid player name", "Warning", 
+                    MessageBox.Show("Please enter a valid player name", "Warning",
                                   MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Обновляем заголовок окна
                 OnPropertyChanged(nameof(WindowTitle));
                 LogSettingsMessage($"Saving player name: '{_playerName}'");
                 LogSettingsMessage($"Saving engine path: '{_enginePath}'");
 
-                // Создаем директорию для настроек
                 Directory.CreateDirectory("mgrdata");
-                
-                // Сохраняем настройки в файлы
+
+
                 File.WriteAllText(Path.Combine("mgrdata", "name.dat"), _playerName);
                 File.WriteAllText(Path.Combine("mgrdata", "engine.dat"), _enginePath);
 
-                // Очищаем кеш демо
                 CleanupDemoCache();
-                
-                // Обновляем карты в фоновом потоке
+
+
                 LogSettingsMessage("Updating maps with new settings");
                 Task.Run(() =>
                 {
                     foreach (var map in _allMaps) UpdateBestTimes(map);
                     Dispatcher.Invoke(() => UpdateFilteredMaps());
                 });
-                
-                // Уведомляем пользователя об успешном сохранении
-                MessageBox.Show("Settings saved successfully!", "Success", 
+
+
+                MessageBox.Show("Settings saved successfully!", "Success",
                               MessageBoxButton.OK, MessageBoxImage.Information);
                 LogSettingsMessage("Settings successfully saved and UI updated");
             }
             catch (Exception ex)
             {
                 LogSettingsMessage($"Error in SaveAllSettings: {ex.Message}");
-                MessageBox.Show($"Failed to save settings: {ex.Message}", "Error", 
+                MessageBox.Show($"Failed to save settings: {ex.Message}", "Error",
                               MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
             SaveAllSettings();
         }
-
         private void LoadCache()
         {
             try
             {
-                // Загружаем кеш миниатюр
+
                 var thumbnailCache = LoadThumbnailCache();
-                
+
                 if (File.Exists(Path.Combine("mgrdata", "mapscache.dat")))
                     _allMaps = File.ReadAllLines(Path.Combine("mgrdata", "mapscache.dat")).Take(MaxMapCacheSize)
-                        .Select(l => new MapInfo { 
+                        .Select(l => new MapInfo
+                        {
                             Name = l,
                             Thumbnail = thumbnailCache.TryGetValue(l, out var thumb) ? thumb : null
                         }).ToList();
-
                 if (File.Exists(Path.Combine("mgrdata", "favorites.dat")))
                     _favorites = File.ReadAllLines(Path.Combine("mgrdata", "favorites.dat")).Take(MaxMapCacheSize).ToList();
-
                 if (File.Exists(Path.Combine("mgrdata", "recent.dat")))
                     _recentMaps = File.ReadAllLines(Path.Combine("mgrdata", "recent.dat")).Take(MaxRecentMaps).ToList();
-
                 if (File.Exists(Path.Combine("mgrdata", "thumbnails.dat")))
                 {
                     _mapThumbnails = new Dictionary<string, string>();
@@ -633,7 +581,6 @@ namespace DefragManager
                         }
                     }
                 }
-
                 ScanMapsIfNeeded();
                 UpdateFilteredMaps();
             }
@@ -644,7 +591,6 @@ namespace DefragManager
                 UpdateFilteredMaps();
             }
         }
-
         private void ScanMapsIfNeeded()
         {
             try
@@ -652,52 +598,48 @@ namespace DefragManager
                 var baseQ3Count = Directory.Exists("baseq3") ? Directory.GetFiles("baseq3", "*.pk3").Length : 0;
                 var defragCount = Directory.Exists("defrag") ? Directory.GetFiles("defrag", "*.pk3").Length : 0;
                 var cacheValid = File.Exists(Path.Combine("mgrdata", "mapscache.dat")) && File.Exists(Path.Combine("mgrdata", "scaninfo.dat"));
-
                 if (!cacheValid || File.ReadAllText(Path.Combine("mgrdata", "scaninfo.dat")) != $"{baseQ3Count}|{defragCount}")
                 {
                     ScanMaps();
                     File.WriteAllText(Path.Combine("mgrdata", "scaninfo.dat"), $"{baseQ3Count}|{defragCount}");
                 }
             }
-            catch { /* ignored */ }
+            catch { }
         }
-
         private void ScanMaps()
         {
             try
             {
                 _allMaps.Clear();
                 _mapThumbnails.Clear();
-
                 void ScanPk3(string pk3Path)
                 {
                     if (_allMaps.Count >= MaxMapCacheSize) return;
                     try
                     {
                         using var archive = ZipFile.OpenRead(pk3Path);
-                        
-                        // Сканируем карты
-                        foreach (var entry in archive.Entries.Where(e => 
-                            e.FullName.StartsWith("maps/", StringComparison.OrdinalIgnoreCase) && 
+
+
+                        foreach (var entry in archive.Entries.Where(e =>
+                            e.FullName.StartsWith("maps/", StringComparison.OrdinalIgnoreCase) &&
                             e.Name.EndsWith(".bsp", StringComparison.OrdinalIgnoreCase)))
                         {
                             if (_allMaps.Count >= MaxMapCacheSize) break;
                             _allMaps.Add(new MapInfo { Name = Path.GetFileNameWithoutExtension(entry.Name) });
                         }
 
-                        // Сканируем миниатюры (только JPG)
-                        foreach (var entry in archive.Entries.Where(e => 
-                            (e.FullName.StartsWith("levelshots/", StringComparison.OrdinalIgnoreCase) || 
+                        foreach (var entry in archive.Entries.Where(e =>
+                            (e.FullName.StartsWith("levelshots/", StringComparison.OrdinalIgnoreCase) ||
                              e.FullName.StartsWith("textures/levelshots/", StringComparison.OrdinalIgnoreCase)) &&
                             e.Name.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)))
                         {
                             var mapName = Path.GetFileNameWithoutExtension(entry.Name);
                             var fullPk3Path = Path.GetFullPath(pk3Path);
-                            
-                            // Ищем карту с таким же именем (без учета регистра)
-                            var matchingMap = _allMaps.FirstOrDefault(m => 
+
+
+                            var matchingMap = _allMaps.FirstOrDefault(m =>
                                 string.Equals(m.Name, mapName, StringComparison.OrdinalIgnoreCase));
-                            
+
                             if (matchingMap != null && !_mapThumbnails.ContainsKey(matchingMap.Name))
                             {
                                 _mapThumbnails[matchingMap.Name] = $"{fullPk3Path}|{entry.FullName.Replace('\\', '/')}";
@@ -710,7 +652,6 @@ namespace DefragManager
                         LogThumbnailMessage($"Error scanning PK3 {pk3Path}: {ex.Message}");
                     }
                 }
-
                 if (Directory.Exists("baseq3"))
                 {
                     foreach (var pk3 in Directory.GetFiles("baseq3", "*.pk3"))
@@ -719,7 +660,6 @@ namespace DefragManager
                         ScanPk3(pk3);
                     }
                 }
-
                 if (Directory.Exists("defrag"))
                 {
                     foreach (var pk3 in Directory.GetFiles("defrag", "*.pk3"))
@@ -728,11 +668,10 @@ namespace DefragManager
                         ScanPk3(pk3);
                     }
                 }
-
                 File.WriteAllLines(Path.Combine("mgrdata", "mapscache.dat"), _allMaps.Select(m => m.Name));
                 File.WriteAllLines(Path.Combine("mgrdata", "thumbnails.dat"), _mapThumbnails.Select(kv => $"{kv.Key}|{kv.Value}"));
-                
-                // Загружаем кеш миниатюр после сканирования
+
+
                 var thumbnailCache = LoadThumbnailCache();
                 foreach (var map in _allMaps)
                 {
@@ -741,10 +680,9 @@ namespace DefragManager
                         map.Thumbnail = thumb;
                     }
                 }
-                
-                // Очищаем кеш от миниатюр карт, которых больше нет
-                CleanupOldThumbnails();
 
+
+                CleanupOldThumbnails();
                 LogThumbnailMessage($"Scan completed. Found {_allMaps.Count} maps and {_mapThumbnails.Count} thumbnails.");
             }
             catch (Exception ex)
@@ -753,45 +691,39 @@ namespace DefragManager
                 MessageBox.Show("Failed to scan maps", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private async Task UpdateFilteredMaps()
         {
             try
             {
                 var searchText = SearchBox?.Text?.ToLower() ?? "";
                 var filtered = _allMaps.Where(m => m.Name?.ToLower().Contains(searchText) ?? false).ToList();
-
-                _filteredMaps = string.IsNullOrEmpty(searchText) 
-                    ? filtered.OrderBy(x => _random.Next()).Take(DisplayMapsCount).ToList() 
+                _filteredMaps = string.IsNullOrEmpty(searchText)
+                    ? filtered.OrderBy(x => _random.Next()).Take(DisplayMapsCount).ToList()
                     : filtered.Take(DisplayMapsCount).ToList();
-
                 foreach (var map in _filteredMaps)
                 {
                     map.IsFavorite = _favorites.Contains(map.Name);
                     UpdateBestTimes(map);
                 }
 
-                // Для случайных карт - сначала загружаем превью, потом обновляем UI
                 if (string.IsNullOrEmpty(searchText))
                 {
                     await Task.Run(() => LoadAllThumbnails());
-                    await Task.Delay(500); // Короткая задержка для стабильности
+                    await Task.Delay(500);
                 }
-
                 await Dispatcher.Invoke(async () =>
                 {
                     MapsGrid.ItemsSource = null;
                     MapsGrid.ItemsSource = _filteredMaps;
-                    
+
                     var favorites = _allMaps.Where(m => _favorites.Contains(m.Name)).ToList();
                     FavoritesGrid.ItemsSource = null;
                     FavoritesGrid.ItemsSource = favorites;
-                    
+
                     RecentGrid.ItemsSource = null;
                     RecentGrid.ItemsSource = _recentMaps.Select(m => _allMaps.FirstOrDefault(am => am.Name == m))
                                                       .Where(m => m != null).ToList();
 
-                    // Для поиска - дополнительная задержка перед загрузкой отсутствующих превью
                     if (!string.IsNullOrEmpty(searchText))
                     {
                         await Task.Delay(400);
@@ -804,36 +736,31 @@ namespace DefragManager
                 LogThumbnailMessage($"Error in UpdateFilteredMaps: {ex.Message}");
             }
         }
-
         private readonly Dictionary<TabItem, int> _tabVisitCounts = new Dictionary<TabItem, int>();
-
         private async void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source is TabControl tabControl && tabControl.SelectedItem is TabItem selectedTab)
             {
 
-                // Обновляем состояние избранных карт при переходе на вкладки Favorites или Recent
                 if (selectedTab == FavoritesTab || selectedTab == RecentTab)
                 {
                     UpdateFavoritesState();
                 }
 
-                // Отменяем предыдущие задачи загрузки
                 _thumbnailLoadingCts.Cancel();
                 _thumbnailLoadingCts.Dispose();
                 _thumbnailLoadingCts = new CancellationTokenSource();
                 var token = _thumbnailLoadingCts.Token;
-
                 try
                 {
-                    // Определяем максимальное количество обновлений для каждой вкладки
+
                     int maxUpdates = selectedTab == AllMapsTab ? 2 : 1;
-                    
-                    // Проверяем нужно ли обновлять ItemsSource
+
+
                     if (!_tabVisitCounts.TryGetValue(selectedTab, out var visitCount) || visitCount < maxUpdates)
                     {
                         _tabVisitCounts[selectedTab] = visitCount + 1;
-                        
+
                         Dispatcher.Invoke(() =>
                         {
                             if (selectedTab == FavoritesTab)
@@ -857,7 +784,6 @@ namespace DefragManager
                         });
                     }
 
-                    // Немедленно обновляем видимые миниатюры
                     if (selectedTab == FavoritesTab)
                     {
                         var favorites = _allMaps.Where(m => _favorites.Contains(m.Name)).ToList();
@@ -875,8 +801,8 @@ namespace DefragManager
                             .ToList();
                         await LoadVisibleThumbnails(RecentScroll, RecentGrid, recentMaps!, token);
                     }
-                    
-                    // Запускаем отложенную загрузку
+
+
                     if (!token.IsCancellationRequested)
                     {
                         _ = DelayedThumbnailLoad(selectedTab, token);
@@ -884,29 +810,27 @@ namespace DefragManager
                 }
                 catch (OperationCanceledException)
                 {
-                    // Игнорируем отмену
+
                 }
             }
         }
-
         private List<MapInfo> GetCurrentlyVisibleMaps(ScrollViewer scrollViewer, DataGrid dataGrid, IList<MapInfo> sourceCollection)
         {
             var visibleMaps = new List<MapInfo>();
-            
-            if (scrollViewer == null || dataGrid.ItemsSource == null) 
-                return visibleMaps;
 
+            if (scrollViewer == null || dataGrid.ItemsSource == null)
+                return visibleMaps;
             try
             {
-                // Получаем первый и последний видимые элементы
+
                 var firstVisibleItemIndex = (int)(scrollViewer.VerticalOffset / dataGrid.RowHeight);
                 var lastVisibleItemIndex = firstVisibleItemIndex + (int)(scrollViewer.ViewportHeight / dataGrid.RowHeight) + 1;
-                
-                // Корректируем индексы
+
+
                 lastVisibleItemIndex = Math.Min(lastVisibleItemIndex, sourceCollection.Count - 1);
                 firstVisibleItemIndex = Math.Max(0, firstVisibleItemIndex);
-                
-                // Получаем видимые карты
+
+
                 for (int i = firstVisibleItemIndex; i <= lastVisibleItemIndex; i++)
                 {
                     if (i >= 0 && i < sourceCollection.Count)
@@ -919,30 +843,25 @@ namespace DefragManager
             {
                 LogThumbnailMessage($"Error getting visible maps: {ex.Message}");
             }
-            
+
             return visibleMaps;
         }
-
         private void UpdateBestTimes(MapInfo map)
         {
             if (map == null) return;
 
-            // Сначала пробуем загрузить из кеша
             bool hasVq3 = _demoCache.TryGetValue($"{map.Name}|vq3", out var vq3Record);
             bool hasCpm = _demoCache.TryGetValue($"{map.Name}|cpm", out var cpmRecord);
 
-            // Устанавливаем времена из кеша, если они есть
             map.VQ3Time = hasVq3 ? vq3Record.VQ3Time : "";
             map.CPMTime = hasCpm ? cpmRecord.CPMTime : "";
 
-            // Если нет данных в кеше или они устарели - сканируем демо
             if ((!hasVq3 || (DateTime.Now - vq3Record.LastUpdate).TotalSeconds >= DemoCacheDuration) ||
                 (!hasCpm || (DateTime.Now - cpmRecord.LastUpdate).TotalSeconds >= DemoCacheDuration))
             {
                 ScanDemosForMap(map);
             }
         }
-
         private void InitializeMapTimes()
         {
             foreach (var map in _allMaps)
@@ -950,34 +869,29 @@ namespace DefragManager
                 UpdateBestTimes(map);
             }
         }
-
         private void ScanDemosForMap(MapInfo map)
         {
             if (!Directory.Exists("defrag/demos")) return;
-
             try
             {
                 string vq3Time = null, cpmTime = null;
                 string vq3DemoFile = null, cpmDemoFile = null;
-                
+
                 foreach (var demo in Directory.GetFiles("defrag/demos", $"*{map.Name}*.dm_68"))
                 {
                     var demoName = Path.GetFileNameWithoutExtension(demo);
-                    
-                    bool isPlayerDemo = !string.IsNullOrEmpty(_playerName) && 
+
+                    bool isPlayerDemo = !string.IsNullOrEmpty(_playerName) &&
                         (demoName.EndsWith($"({_playerName})", StringComparison.OrdinalIgnoreCase) ||
                          demoName.Contains($"({_playerName}.", StringComparison.OrdinalIgnoreCase));
-                    
-                    if (!isPlayerDemo) continue;
 
+                    if (!isPlayerDemo) continue;
                     var realMapName = ExtractMapNameFromDemo(demoName);
                     if (string.IsNullOrEmpty(realMapName) || !string.Equals(realMapName, map.Name, StringComparison.OrdinalIgnoreCase))
                         continue;
-
                     var timePart = demoName.Split(']').LastOrDefault()?.Split('(').FirstOrDefault()?.Trim();
                     if (string.IsNullOrEmpty(timePart)) continue;
-
-                    if (demoName.Contains("[df.cpm]", StringComparison.OrdinalIgnoreCase) || 
+                    if (demoName.Contains("[df.cpm]", StringComparison.OrdinalIgnoreCase) ||
                         demoName.Contains("[cpm]", StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.IsNullOrEmpty(cpmTime) || string.Compare(timePart, cpmTime) < 0)
@@ -986,7 +900,7 @@ namespace DefragManager
                             cpmDemoFile = Path.GetFileName(demo);
                         }
                     }
-                    else if (demoName.Contains("[df.vq3]", StringComparison.OrdinalIgnoreCase) || 
+                    else if (demoName.Contains("[df.vq3]", StringComparison.OrdinalIgnoreCase) ||
                              demoName.Contains("[vq3]", StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.IsNullOrEmpty(vq3Time) || string.Compare(timePart, vq3Time) < 0)
@@ -997,30 +911,28 @@ namespace DefragManager
                     }
                 }
 
-                // Обновляем UI и кеш
                 Dispatcher.Invoke(() =>
                 {
                     if (!string.IsNullOrEmpty(vq3Time))
                     {
                         map.VQ3Time = vq3Time;
-                        _demoCache[$"{map.Name}|vq3"] = new DemoRecord 
-                        { 
+                        _demoCache[$"{map.Name}|vq3"] = new DemoRecord
+                        {
                             VQ3Time = vq3Time,
                             CPMTime = "",
                             DemoFileName = vq3DemoFile,
-                            LastUpdate = DateTime.Now 
+                            LastUpdate = DateTime.Now
                         };
                     }
-
                     if (!string.IsNullOrEmpty(cpmTime))
                     {
                         map.CPMTime = cpmTime;
-                        _demoCache[$"{map.Name}|cpm"] = new DemoRecord 
-                        { 
+                        _demoCache[$"{map.Name}|cpm"] = new DemoRecord
+                        {
                             VQ3Time = "",
                             CPMTime = cpmTime,
                             DemoFileName = cpmDemoFile,
-                            LastUpdate = DateTime.Now 
+                            LastUpdate = DateTime.Now
                         };
                     }
                 });
@@ -1030,7 +942,6 @@ namespace DefragManager
                 LogThumbnailMessage($"Error scanning demos for {map.Name}: {ex.Message}");
             }
         }
-
         private void RefreshMapTimesUI()
         {
             try
@@ -1048,13 +959,12 @@ namespace DefragManager
                 LogSettingsMessage($"Error refreshing UI: {ex.Message}");
             }
         }
-
         private void CleanupDemoCache()
         {
             try
             {
                 var keysToRemove = new List<string>();
-                
+
                 foreach (var kv in _demoCache)
                 {
                     if (!string.IsNullOrEmpty(kv.Value.DemoFileName))
@@ -1062,32 +972,28 @@ namespace DefragManager
                         var demoName = Path.GetFileNameWithoutExtension(kv.Value.DemoFileName);
                         bool isPlayerDemo = demoName.EndsWith($"({_playerName})", StringComparison.OrdinalIgnoreCase) ||
                                            demoName.Contains($"({_playerName}.", StringComparison.OrdinalIgnoreCase);
-                        
+
                         if (!isPlayerDemo)
                         {
                             keysToRemove.Add(kv.Key);
                         }
                     }
                 }
-                
+
                 foreach (var key in keysToRemove)
                 {
                     _demoCache.Remove(key);
                 }
             }
-            catch { /* ignored */ }
+            catch { }
         }
-
         private int _lastDemoCount = 0;
         private DateTime _lastDemoCheckTime = DateTime.MinValue;
-
         private int _lastDemoFileCount = -1;
         private readonly object _demoCheckLock = new object();
-
         private void CheckForNewDemos()
         {
             if (!_isWindowActive) return;
-
             lock (_demoCheckLock)
             {
                 try
@@ -1099,39 +1005,35 @@ namespace DefragManager
                         return;
                     }
 
-                    // Быстрая проверка количества файлов
                     int currentCount = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly).Length;
-                    
-                    // Если количество не изменилось - пропускаем проверку
+
+
                     if (currentCount == _lastDemoFileCount)
                     {
                         LogSettingsMessage($"Demo count unchanged: {currentCount} files");
                         return;
                     }
-
                     LogSettingsMessage($"Demo count changed from {_lastDemoFileCount} to {currentCount}, updating...");
                     _lastDemoFileCount = currentCount;
                     _lastDemoScanTime = DateTime.Now;
 
-                    // Запускаем обновление в фоне
                     Task.Run(() =>
                     {
                         try
                         {
-                            // Получаем список всех демо
+
                             var demoFiles = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly);
-                            
-                            // Собираем уникальные имена карт
+
+
                             var affectedMaps = demoFiles
                                 .Select(f => ExtractMapNameFromDemo(Path.GetFileNameWithoutExtension(f)))
                                 .Where(name => !string.IsNullOrEmpty(name))
                                 .Distinct()
                                 .ToList();
 
-                            // Обновляем только затронутые карты
                             foreach (var mapName in affectedMaps)
                             {
-                                var map = _allMaps.FirstOrDefault(m => 
+                                var map = _allMaps.FirstOrDefault(m =>
                                     string.Equals(m.Name, mapName, StringComparison.OrdinalIgnoreCase));
                                 if (map != null)
                                 {
@@ -1139,10 +1041,8 @@ namespace DefragManager
                                 }
                             }
 
-                            // Сохраняем кеш
                             SaveDemoCache();
 
-                            // Обновляем UI
                             Dispatcher.Invoke(() =>
                             {
                                 MapsGrid.Items.Refresh();
@@ -1163,7 +1063,6 @@ namespace DefragManager
                 }
             }
         }
-
         private void InitializeDemoFolderState()
         {
             try
@@ -1180,8 +1079,6 @@ namespace DefragManager
                 LogSettingsMessage($"Error initializing demo state: {ex.Message}");
             }
         }
-
-
         private async void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!_isWindowActive) return;
@@ -1189,29 +1086,28 @@ namespace DefragManager
             _searchCts = new CancellationTokenSource();
             var token = _searchCts.Token;
             var currentText = SearchBox?.Text;
-
             try
             {
-                // Добавляем задержку перед обработкой ввода
+
                 await Task.Delay(400, token);
-                
+
                 if (!token.IsCancellationRequested && SearchBox?.Text == currentText)
                 {
-                    await Dispatcher.InvokeAsync(async () => 
+                    await Dispatcher.InvokeAsync(async () =>
                     {
                         await UpdateFilteredMaps();
-                        
-                        // Дополнительная задержка после обновления UI
+
+
                         await Task.Delay(100);
-                        
-                        // Загружаем превью для видимых элементов
+
+
                         if (!string.IsNullOrEmpty(currentText))
                         {
                             await LoadVisibleThumbnails(
                                 FavoritesTab.IsSelected ? FavoritesScroll : MapsGridScroll,
                                 FavoritesTab.IsSelected ? FavoritesGrid : MapsGrid,
-                                FavoritesTab.IsSelected ? 
-                                    _allMaps.Where(m => _favorites.Contains(m.Name)).ToList() : 
+                                FavoritesTab.IsSelected ?
+                                    _allMaps.Where(m => _favorites.Contains(m.Name)).ToList() :
                                     _filteredMaps,
                                 _searchCts.Token
                             );
@@ -1221,14 +1117,13 @@ namespace DefragManager
             }
             catch (TaskCanceledException)
             {
-                // Поиск был отменён - ничего не делаем
+
             }
             catch (Exception ex)
             {
                 LogThumbnailMessage($"Error in search: {ex.Message}");
             }
         }
-
         private void ToggleFavorite_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is MapInfo map)
@@ -1240,17 +1135,15 @@ namespace DefragManager
                         _favorites.Add(map.Name);
                     else
                         _favorites.Remove(map.Name);
-
                     File.WriteAllLines(Path.Combine("mgrdata", "favorites.dat"), _favorites);
                     Dispatcher.BeginInvoke(() =>
                     {
                         UpdateFilteredMaps();
                     }, DispatcherPriority.Background);
                 }
-                catch { /* ignored */ }
+                catch { }
             }
         }
-
         private void LaunchMap_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is MapInfo map && ((Button)sender).Tag is string physics)
@@ -1275,25 +1168,24 @@ namespace DefragManager
                 }
             }
         }
-
         private void PlayDemo_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is MapInfo map && ((Button)sender).Tag is string physics)
             {
                 try
                 {
-                    // Формируем ключ для поиска в кеше
+
                     var cacheKey = $"{map.Name}|{physics}";
-                    
+
                     if (_demoCache.TryGetValue(cacheKey, out var demoRecord) && !string.IsNullOrEmpty(demoRecord.DemoFileName))
                     {
                         KillExistingProcess();
-                        // Используем сохраненное имя файла демо
+
                         System.Diagnostics.Process.Start(_enginePath, $"+demo {demoRecord.DemoFileName}");
                     }
                     else
                     {
-                        // Старый вариант, если имя файла не найдено в кеше
+
                         var time = physics == "vq3" ? map.VQ3Time : map.CPMTime;
                         if (!string.IsNullOrEmpty(time))
                         {
@@ -1303,7 +1195,7 @@ namespace DefragManager
                         }
                         else
                         {
-                            MessageBox.Show("No demo found for this time and physics mode", "Error", 
+                            MessageBox.Show("No demo found for this time and physics mode", "Error",
                                           MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                     }
@@ -1314,17 +1206,14 @@ namespace DefragManager
                 }
             }
         }
-
         private void MinimizeWindow(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
         }
-
         private void MaximizeWindow(object sender, RoutedEventArgs e)
         {
             this.WindowState = this.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
-
         private async void RescanMaps_Click(object sender, RoutedEventArgs e)
         {
             var rescanButton = (Button)sender;
@@ -1334,7 +1223,7 @@ namespace DefragManager
                 await Task.Run(() =>
                 {
                     ScanMaps();
-                    Dispatcher.BeginInvoke(() => 
+                    Dispatcher.BeginInvoke(() =>
                     {
                         UpdateFilteredMaps();
                         rescanButton.IsEnabled = true;
@@ -1344,15 +1233,14 @@ namespace DefragManager
             catch (Exception ex)
             {
                 LogThumbnailMessage($"Error rescanning maps: {ex.Message}");
-                Dispatcher.BeginInvoke(() => 
+                Dispatcher.BeginInvoke(() =>
                 {
-                    MessageBox.Show("Failed to rescan maps", "Error", 
+                    MessageBox.Show("Failed to rescan maps", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     rescanButton.IsEnabled = true;
                 });
             }
         }
-
         private async void MapsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_isLoadingThumbnails || MapsGridScroll == null) return;
@@ -1361,37 +1249,36 @@ namespace DefragManager
                 await LoadVisibleThumbnails(MapsGridScroll, MapsGrid, _filteredMaps, _thumbnailLoadingCts.Token);
             }
         }
-
-        private async Task LoadVisibleThumbnails(ScrollViewer scrollViewer, DataGrid dataGrid, 
+        private async Task LoadVisibleThumbnails(ScrollViewer scrollViewer, DataGrid dataGrid,
             IList<MapInfo> sourceCollection, CancellationToken token)
         {
-            if (!_isWindowActive || _isLoadingThumbnails || scrollViewer == null || dataGrid == null) 
+            if (!_isWindowActive || _isLoadingThumbnails || scrollViewer == null || dataGrid == null)
                 return;
-                
+
             _isLoadingThumbnails = true;
-            
+
             try
             {
                 var visibleMaps = GetCurrentlyVisibleMaps(scrollViewer, dataGrid, sourceCollection);
-                
-                // Группируем карты по 5 для пакетной обработки
+
+
                 var batches = visibleMaps
                     .Where(m => m.Thumbnail == null && _mapThumbnails.ContainsKey(m.Name))
                     .Select((map, index) => new { map, index })
                     .GroupBy(x => x.index / ThumbnailBatchSize)
                     .Select(g => g.Select(x => x.map).ToList());
-                
+
                 foreach (var batch in batches)
                 {
                     if (token.IsCancellationRequested) break;
-                    
-                    var tasks = batch.Select(map => 
+
+                    var tasks = batch.Select(map =>
                     {
-                        if (!_mapThumbnails.TryGetValue(map.Name, out var thumbPath)) 
+                        if (!_mapThumbnails.TryGetValue(map.Name, out var thumbPath))
                             return Task.CompletedTask;
-                            
+
                         return _thumbnailLoadSemaphore.WaitAsync(token)
-                            .ContinueWith(async _ => 
+                            .ContinueWith(async _ =>
                             {
                                 try
                                 {
@@ -1403,22 +1290,22 @@ namespace DefragManager
                                 }
                             }, token);
                     }).ToList();
-                    
+
                     await Task.WhenAll(tasks);
-                    
-                    // Обновляем UI после каждой пачки
-                    Dispatcher.Invoke(() => 
+
+
+                    Dispatcher.Invoke(() =>
                     {
                         dataGrid.Items.Refresh();
                     }, DispatcherPriority.Background);
-                    
+
                     if (token.IsCancellationRequested) break;
-                    await Task.Delay(100, token); // Небольшая пауза для плавности UI
+                    await Task.Delay(100, token);
                 }
             }
             catch (OperationCanceledException)
             {
-                // Игнорируем отмену операции
+
             }
             catch (Exception ex)
             {
@@ -1429,7 +1316,6 @@ namespace DefragManager
                 _isLoadingThumbnails = false;
             }
         }
-
         private async void RecentScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_isLoadingThumbnails || !RecentTab.IsSelected) return;
@@ -1440,16 +1326,14 @@ namespace DefragManager
                 await LoadVisibleThumbnails(RecentScroll, RecentGrid, recentMaps, _thumbnailLoadingCts.Token);
             }
         }
-
         private async void FavoritesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_isLoadingThumbnails || !FavoritesTab.IsSelected) return;
-            
+
             var token = _thumbnailLoadingCts.Token;
             var favorites = _allMaps.Where(m => _favorites.Contains(m.Name)).ToList();
             await LoadVisibleThumbnails(FavoritesScroll, FavoritesGrid, favorites, token);
         }
-
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -1457,18 +1341,14 @@ namespace DefragManager
                 DragMove();
             }
         }
-
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
             Close();
         }
-
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern bool ReleaseCapture();
-
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-
         private void ResizeWindow(object sender, MouseButtonEventArgs e, int direction)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -1478,7 +1358,6 @@ namespace DefragManager
                 SendMessage(helper.Handle, 0x112, 0xF000 + direction, 0);
             }
         }
-
         private void ResizeWindow_Left(object sender, MouseButtonEventArgs e) => ResizeWindow(sender, e, 1);
         private void ResizeWindow_Right(object sender, MouseButtonEventArgs e) => ResizeWindow(sender, e, 2);
         private void ResizeWindow_Top(object sender, MouseButtonEventArgs e) => ResizeWindow(sender, e, 3);
@@ -1487,48 +1366,41 @@ namespace DefragManager
         private void ResizeWindow_TopRight(object sender, MouseButtonEventArgs e) => ResizeWindow(sender, e, 5);
         private void ResizeWindow_BottomLeft(object sender, MouseButtonEventArgs e) => ResizeWindow(sender, e, 7);
         private void ResizeWindow_BottomRight(object sender, MouseButtonEventArgs e) => ResizeWindow(sender, e, 8);
-
         private async Task LoadThumbnailAsync(MapInfo map, string thumbPath, CancellationToken token)
         {
-            if (token.IsCancellationRequested || map.Thumbnail != null || string.IsNullOrEmpty(map.Name)) 
+            if (token.IsCancellationRequested || map.Thumbnail != null || string.IsNullOrEmpty(map.Name))
                 return;
-            
+
             try
             {
-                // Проверяем кеш в памяти
+
                 if (_thumbnailCache.TryGetValue(map.Name, out var cachedBitmap))
                 {
                     map.Thumbnail = cachedBitmap;
                     return;
                 }
-
-                var parts = thumbPath.Split(new[] {'|'}, 2);
+                var parts = thumbPath.Split(new[] { '|' }, 2);
                 if (parts.Length != 2) return;
-
                 var pk3Path = parts[0];
                 var entryPath = parts[1].Replace('\\', '/');
-
                 if (!File.Exists(pk3Path)) return;
 
-                // Используем временный файл для надежности
                 var tempFile = Path.GetTempFileName();
                 try
                 {
                     using (var archive = ZipFile.OpenRead(pk3Path))
                     {
-                        var entry = archive.GetEntry(entryPath) ?? 
-                                 archive.Entries.FirstOrDefault(e => 
+                        var entry = archive.GetEntry(entryPath) ??
+                                 archive.Entries.FirstOrDefault(e =>
                                      string.Equals(e.FullName, entryPath, StringComparison.OrdinalIgnoreCase));
-                        
-                        if (entry == null) return;
 
+                        if (entry == null) return;
                         entry.ExtractToFile(tempFile, overwrite: true);
                     }
-
                     await Dispatcher.InvokeAsync(() =>
                     {
                         if (token.IsCancellationRequested || map.Thumbnail != null) return;
-                        
+
                         try
                         {
                             using (var fileStream = new FileStream(tempFile, FileMode.Open, FileAccess.Read))
@@ -1538,32 +1410,32 @@ namespace DefragManager
                                 originalBitmap.CacheOption = BitmapCacheOption.OnLoad;
                                 originalBitmap.StreamSource = fileStream;
                                 originalBitmap.EndInit();
-                                
-                                // Создаем уменьшенную версию изображения
+
+
                                 var resizedBitmap = new TransformedBitmap(
                                     originalBitmap,
                                     new ScaleTransform(
                                         ThumbnailWidth / (double)originalBitmap.PixelWidth,
                                         ThumbnailHeight / (double)originalBitmap.PixelHeight));
-                                
+
                                 var finalBitmap = new BitmapImage();
                                 using (var memoryStream = new MemoryStream())
                                 {
                                     var encoder = new JpegBitmapEncoder();
                                     encoder.Frames.Add(BitmapFrame.Create(resizedBitmap));
                                     encoder.Save(memoryStream);
-                                    
+
                                     memoryStream.Position = 0;
                                     finalBitmap.BeginInit();
                                     finalBitmap.CacheOption = BitmapCacheOption.OnLoad;
                                     finalBitmap.StreamSource = memoryStream;
                                     finalBitmap.EndInit();
                                 }
-                                
+
                                 finalBitmap.Freeze();
                                 map.Thumbnail = finalBitmap;
-                                _thumbnailCache[map.Name] = finalBitmap; // Добавляем в кеш
-                                
+                                _thumbnailCache[map.Name] = finalBitmap;
+
                                 if (MapsGrid.ItemContainerGenerator.ContainerFromItem(map) is DataGridRow container)
                                     container.InvalidateVisual();
                             }
@@ -1576,11 +1448,11 @@ namespace DefragManager
                 }
                 finally
                 {
-                    // Удаляем временный файл с задержкой
-                    Task.Delay(5000).ContinueWith(_ => 
+
+                    Task.Delay(5000).ContinueWith(_ =>
                     {
-                        try { File.Delete(tempFile); } 
-                        catch { /* ignore deletion errors */ }
+                        try { File.Delete(tempFile); }
+                        catch { }
                     });
                 }
             }
@@ -1589,7 +1461,6 @@ namespace DefragManager
                 LogThumbnailMessage($"Error loading thumbnail for {map.Name}: {ex.Message}");
             }
         }
-
         private void EnsureMgrDataDirectoryExists()
         {
             try
@@ -1604,7 +1475,6 @@ namespace DefragManager
                 LogThumbnailMessage($"Error creating mgrdata directory: {ex.Message}");
             }
         }
-
         private void SetDarkTheme()
         {
             try
@@ -1621,28 +1491,23 @@ namespace DefragManager
                 LogThumbnailMessage($"Error setting dark theme: {ex.Message}");
             }
         }
-
         private void LogSettingsMessage(string message)
         {
             try
             {
-                File.AppendAllText(Path.Combine("mgrdata", "settings.log"), 
+                File.AppendAllText(Path.Combine("mgrdata", "settings.log"),
                     $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}\n");
             }
-            catch { /* ignore logging errors */ }
+            catch { }
         }
-
         private void InitializeDefaultSettings()
         {
             Directory.CreateDirectory("mgrdata");
-            
+
             if (!File.Exists(Path.Combine("mgrdata", "name.dat")))
                 File.WriteAllText(Path.Combine("mgrdata", "name.dat"), "SET_YOUR_DF_NAME");
-
         }
-
         private string _windowTitle;
-
         public string WindowTitle
         {
             get => _windowTitle;
@@ -1655,10 +1520,8 @@ namespace DefragManager
                 }
             }
         }
-
         private bool _isWindowActive = true;
         private DateTime _lastActivityCheck = DateTime.Now;
-
         private void UpdateActivityState()
         {
             bool newState = this.IsActive && this.WindowState != WindowState.Minimized;
@@ -1667,72 +1530,67 @@ namespace DefragManager
                 _isWindowActive = newState;
                 if (_isWindowActive)
                 {
-                    // Окно стало активным - возобновляем таймер
+
                     _demoCheckTimer.Start();
                     _lastActivityCheck = DateTime.Now;
                 }
                 else
                 {
-                    // Окно стало неактивным - останавливаем таймер
+
                     _demoCheckTimer.Stop();
                 }
             }
         }
-
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
             UpdateActivityState();
         }
-
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
             UpdateActivityState();
         }
-
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
             UpdateActivityState();
         }
-        //добавление методов сохранения прьвью в кеш на диск
 
-        private async Task LoadMissingThumbnails(ScrollViewer scrollViewer, DataGrid dataGrid, 
+        private async Task LoadMissingThumbnails(ScrollViewer scrollViewer, DataGrid dataGrid,
             IList<MapInfo> sourceCollection, CancellationToken token)
         {
-            if (!_isWindowActive || _isLoadingThumbnails || scrollViewer == null || dataGrid == null) 
+            if (!_isWindowActive || _isLoadingThumbnails || scrollViewer == null || dataGrid == null)
                 return;
-                
+
             _isLoadingThumbnails = true;
-            
+
             try
             {
                 var visibleMaps = GetCurrentlyVisibleMaps(scrollViewer, dataGrid, sourceCollection);
-                
-                // Фильтруем только те карты, у которых нет миниатюры
+
+
                 var mapsToLoad = visibleMaps
                     .Where(m => m.Thumbnail == null && _mapThumbnails.ContainsKey(m.Name))
                     .ToList();
-                
-                if (!mapsToLoad.Any()) return;
 
+                if (!mapsToLoad.Any()) return;
                 var batches = mapsToLoad
                     .Select((map, index) => new { map, index })
                     .GroupBy(x => x.index / ThumbnailBatchSize)
                     .Select(g => g.Select(x => x.map).ToList());
-                
+
                 foreach (var batch in batches)
                 {
                     if (token.IsCancellationRequested) break;
-                    
-                    var tasks = batch.Select(map => 
+
+                    var tasks = batch.Select(map =>
                     {
-                        if (!_mapThumbnails.TryGetValue(map.Name, out var thumbPath)) 
+                        if (!_mapThumbnails.TryGetValue(map.Name, out var thumbPath))
                             return Task.CompletedTask;
-                            
+
                         return _thumbnailLoadSemaphore.WaitAsync(token)
-                            .ContinueWith(async _ => 
+                            .ContinueWith(async _ =>
                             {
                                 try
                                 {
@@ -1744,22 +1602,22 @@ namespace DefragManager
                                 }
                             }, token);
                     }).ToList();
-                    
+
                     await Task.WhenAll(tasks);
-                    
-                    // Обновляем UI после каждой пачки
-                    Dispatcher.Invoke(() => 
+
+
+                    Dispatcher.Invoke(() =>
                     {
                         dataGrid.Items.Refresh();
                     }, DispatcherPriority.Background);
-                    
+
                     if (token.IsCancellationRequested) break;
-                    await Task.Delay(100, token); // Небольшая пауза для плавности UI
+                    await Task.Delay(100, token);
                 }
             }
             catch (OperationCanceledException)
             {
-                // Игнорируем отмену операции
+
             }
             catch (Exception ex)
             {
@@ -1770,12 +1628,11 @@ namespace DefragManager
                 _isLoadingThumbnails = false;
             }
         }
-
         private void SaveThumbnailCache()
         {
             try
             {
-                // Загружаем существующий кеш из файла
+
                 var existingCache = new Dictionary<string, string>();
                 if (File.Exists(Path.Combine("mgrdata", "thumbnail_cache.dat")))
                 {
@@ -1789,13 +1646,11 @@ namespace DefragManager
                     }
                 }
 
-                // Добавляем или обновляем записи из текущего кеша
                 foreach (var kv in _thumbnailCache)
                 {
                     existingCache[kv.Key] = Convert.ToBase64String(ImageToBytes(kv.Value));
                 }
 
-                // Сохраняем объединенный кеш
                 var cacheLines = existingCache.Select(kv => $"{kv.Key}|{kv.Value}");
                 File.WriteAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"), cacheLines);
             }
@@ -1804,7 +1659,6 @@ namespace DefragManager
                 LogThumbnailMessage($"Error saving thumbnail cache: {ex.Message}");
             }
         }
-
         private Dictionary<string, BitmapImage> LoadThumbnailCache()
         {
             var cache = new Dictionary<string, BitmapImage>();
@@ -1838,7 +1692,6 @@ namespace DefragManager
             }
             return cache;
         }
-
         private byte[] ImageToBytes(BitmapImage image)
         {
             using (var ms = new MemoryStream())
@@ -1849,39 +1702,35 @@ namespace DefragManager
                 return ms.ToArray();
             }
         }
-
         private BitmapImage BytesToImage(byte[] bytes)
         {
             using (var ms = new MemoryStream(bytes))
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.DecodePixelWidth = ThumbnailWidth; // Устанавливаем ширину для декодирования
-                bitmap.DecodePixelHeight = ThumbnailHeight; // Устанавливаем высоту для декодирования
+                bitmap.DecodePixelWidth = ThumbnailWidth;
+                bitmap.DecodePixelHeight = ThumbnailHeight;
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.StreamSource = ms;
                 bitmap.EndInit();
                 return bitmap;
             }
         }
-
         private void CleanupOldThumbnails()
         {
             try
             {
                 if (!File.Exists(Path.Combine("mgrdata", "thumbnail_cache.dat"))) return;
-
                 var lines = File.ReadAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"));
                 var activeMaps = new HashSet<string>(_allMaps.Select(m => m.Name));
-                
+
                 var updatedLines = lines
-                    .Where(line => 
+                    .Where(line =>
                     {
                         var parts = line.Split(new[] { '|' }, 2);
                         return parts.Length == 2 && activeMaps.Contains(parts[0]);
                     })
                     .ToList();
-
                 if (updatedLines.Count < lines.Length)
                 {
                     File.WriteAllLines(Path.Combine("mgrdata", "thumbnail_cache.dat"), updatedLines);
@@ -1892,7 +1741,6 @@ namespace DefragManager
                 LogThumbnailMessage($"Error cleaning up thumbnail cache: {ex.Message}");
             }
         }
-
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             try
@@ -1909,20 +1757,19 @@ namespace DefragManager
                 MessageBox.Show($"Не удалось открыть ссылку: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void KillExistingProcess()
         {
             try
             {
                 var processName = Path.GetFileNameWithoutExtension(_enginePath);
                 var processes = Process.GetProcessesByName(processName);
-                
+
                 foreach (var process in processes)
                 {
                     try
                     {
                         process.Kill();
-                        process.WaitForExit(1000); // Даем процессу время завершиться
+                        process.WaitForExit(1000);
                     }
                     catch (Exception ex)
                     {
@@ -1935,12 +1782,11 @@ namespace DefragManager
                 LogSettingsMessage($"Error in KillExistingProcess: {ex.Message}");
             }
         }
-
         private void UpdateFavoritesState()
         {
             try
             {
-                // Просто обновляем свойство IsFavorite для всех карт
+
                 foreach (var map in _allMaps)
                 {
                     map.IsFavorite = _favorites.Contains(map.Name);
@@ -1951,6 +1797,5 @@ namespace DefragManager
                 LogSettingsMessage($"Error updating favorites state: {ex.Message}");
             }
         }
-
     }
 }
