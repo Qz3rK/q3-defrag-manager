@@ -115,7 +115,7 @@ namespace DefragManager
             InitializeDefaultSettings();
             RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
             _demoCheckTimer = new System.Timers.Timer(DemoCheckInterval) { AutoReset = true };
-            _demoCheckTimer.Elapsed += DemoCheckTimerElapsed;
+            _demoCheckTimer.Elapsed += (s, e) => CheckForNewDemos();
             Loaded += OnWindowLoaded;
             Closed += OnWindowClosed;
 
@@ -913,73 +913,28 @@ namespace DefragManager
         }
         private void UpdateBestTimes(MapInfo map)
         {
-            if (map == null || _isDisposed) return;
+            if (map == null) return;
 
-            // Быстрая проверка кеша
-            bool hasVq3 = _demoCache.TryGetValue($"{map.Name}|vq3", out var vq3Record);
-            bool hasCpm = _demoCache.TryGetValue($"{map.Name}|cpm", out var cpmRecord);
+            var vq3Key = $"{map.Name}|vq3";
+            var cpmKey = $"{map.Name}|cpm";
 
-            // Устанавливаем значения из кеша
-            map.VQ3Time = hasVq3 ? vq3Record.VQ3Time : "";
-            map.CPMTime = hasCpm ? cpmRecord.CPMTime : "";
-
-            // Отложенная проверка актуальности демо
-            if ((hasVq3 && vq3Record.LastUpdate.AddMilliseconds(DemoCacheDuration) > DateTime.Now) &&
-                (hasCpm && cpmRecord.LastUpdate.AddMilliseconds(DemoCacheDuration) > DateTime.Now))
+            if (_demoCache.TryGetValue(vq3Key, out var vq3Record))
             {
-                return;
+                map.VQ3Time = vq3Record.VQ3Time;
+            }
+            else
+            {
+                map.VQ3Time = "";
             }
 
-            // Если нужно проверить демо - делаем это в фоне
-            Task.Run(() =>
+            if (_demoCache.TryGetValue(cpmKey, out var cpmRecord))
             {
-                if (_isDisposed) return;
-                
-                bool needUpdate = false;
-                var newVq3Time = map.VQ3Time;
-                var newCpmTime = map.CPMTime;
-
-                if (!hasVq3 || vq3Record.LastUpdate.AddMilliseconds(DemoCacheDuration) <= DateTime.Now)
-                {
-                    var result = ScanPhysicsForMap(map.Name, "vq3");
-                    if (result != null && !string.IsNullOrEmpty(result.VQ3Time))
-                    {
-                        newVq3Time = result.VQ3Time;
-                        needUpdate = true;
-                    }
-                }
-
-                if (!hasCpm || cpmRecord.LastUpdate.AddMilliseconds(DemoCacheDuration) <= DateTime.Now)
-                {
-                    var result = ScanPhysicsForMap(map.Name, "cpm");
-                    if (result != null && !string.IsNullOrEmpty(result.CPMTime))
-                    {
-                        newCpmTime = result.CPMTime;
-                        needUpdate = true;
-                    }
-                }
-
-                if (needUpdate)
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        map.VQ3Time = newVq3Time;
-                        map.CPMTime = newCpmTime;
-                        
-                        // Обновляем только конкретную строку в UI
-                        if (MapsGrid.Items.Contains(map))
-                        {
-                            var row = (DataGridRow)MapsGrid.ItemContainerGenerator.ContainerFromItem(map);
-                            if (row != null)
-                            {
-                                row.InvalidateArrange();
-                                row.InvalidateMeasure();
-                                row.UpdateLayout();
-                            }
-                        }
-                    });
-                }
-            });
+                map.CPMTime = cpmRecord.CPMTime;
+            }
+            else
+            {
+                map.CPMTime = "";
+            }
         }
         private DemoRecord ScanPhysicsForMap(string mapName, string physics)
         {
@@ -1055,72 +1010,44 @@ namespace DefragManager
         private bool _isDemoScanRunning = false;
         private void InitializeMapTimes()
         {
-            if (_isDemoScanRunning) return;
-            _isDemoScanRunning = true;
-
             try
             {
-                if (!Directory.Exists("defrag/demos"))
+                string demosPath = "defrag/demos";
+                if (!Directory.Exists(demosPath))
                 {
-                    LogSettingsMessage("Demos directory not found, skipping scan");
+                    LogSettingsMessage("Demos directory not found during initialization");
                     return;
                 }
 
-                int currentCount = Directory.GetFiles("defrag/demos", "*.dm_68", SearchOption.TopDirectoryOnly).Length;
-                
-                // Проверяем условия для полного сканирования
-                bool needFullScan = !File.Exists(Path.Combine("mgrdata", "democache.dat")) || 
-                                  (File.Exists(Path.Combine("mgrdata", "name.dat")) && 
-                                   File.ReadAllText(Path.Combine("mgrdata", "name.dat")).Trim() != _playerName) ||
-                                  (_lastDemoCount != currentCount);
+                // Очищаем кеш от записей других игроков
+                if (!string.IsNullOrEmpty(_playerName))
+                {
+                    var keysToRemove = _demoCache
+                        .Where(kv => !IsPlayerDemo(kv.Value.DemoFileName, _playerName))
+                        .Select(kv => kv.Key)
+                        .ToList();
+                    
+                    foreach (var key in keysToRemove)
+                    {
+                        _demoCache.Remove(key);
+                    }
+                }
 
-                if (needFullScan)
+                var demoFiles = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly);
+                _lastDemoCount = demoFiles.Length;
+                SaveDemoCount();
+
+                foreach (var demoFile in demoFiles)
                 {
-                    LogSettingsMessage("Starting full demo scan in background...");
-                    Task.Run(() =>
-                    {
-                        try
-                        {
-                            foreach (var map in _allMaps)
-                            {
-                                if (_isDisposed) break;
-                                ScanDemosForMap(map);
-                            }
-                            _lastDemoCount = currentCount;
-                            SaveDemoCount();
-                            SaveDemoCache();
-                            
-                            Dispatcher.Invoke(() => RefreshMapTimesUI());
-                        }
-                        catch (Exception ex)
-                        {
-                            LogSettingsMessage($"Error during demo scan: {ex.Message}");
-                        }
-                        finally
-                        {
-                            _isDemoScanRunning = false;
-                        }
-                    });
+                    ProcessDemoFile(demoFile);
                 }
-                else
-                {
-                    LogSettingsMessage("Using cached demo records without scan");
-                    // Просто обновляем UI с кешированными значениями
-                    Dispatcher.Invoke(() => 
-                    {
-                        foreach (var map in _allMaps)
-                        {
-                            UpdateBestTimes(map);
-                        }
-                        RefreshMapTimesUI();
-                    });
-                    _isDemoScanRunning = false;
-                }
+
+                SaveDemoCache();
+                LogSettingsMessage($"Initialized map times from {demoFiles.Length} demo files");
             }
             catch (Exception ex)
             {
-                LogSettingsMessage($"Error in InitializeMapTimes: {ex.Message}");
-                _isDemoScanRunning = false;
+                LogSettingsMessage($"Error initializing map times: {ex.Message}");
             }
         }
         private void ScanDemosForMap(MapInfo map)
@@ -1206,54 +1133,61 @@ namespace DefragManager
                         {
                             _lastDemoCount = 0;
                             SaveDemoCount();
+                            SaveDemoCache();
+                            Dispatcher.Invoke(RefreshMapTimesUI);
                         }
+                        LogSettingsMessage("Demos directory not found");
                         return;
                     }
 
                     int currentCount = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly).Length;
-                    if (currentCount == _lastDemoCount) return;
+                    
+                    if (currentCount == _lastDemoCount)
+                    {
+                        LogSettingsMessage($"Demo count unchanged: {currentCount} files");
+                        return;
+                    }
 
-                    LogSettingsMessage($"Demo count changed from {_lastDemoCount} to {currentCount}");
+                    LogSettingsMessage($"Demo count changed from {_lastDemoCount} to {currentCount}, updating...");
                     _lastDemoCount = currentCount;
                     SaveDemoCount();
+                    _lastDemoScanTime = DateTime.Now;
 
-                    // Быстрое обновление только для новых/измененных демо
                     Task.Run(() =>
                     {
                         try
                         {
-                            var newDemos = Directory.GetFiles(demosPath, "*.dm_68")
-                                .Select(f => new { 
-                                    File = f, 
-                                    Name = Path.GetFileNameWithoutExtension(f),
-                                    LastWrite = File.GetLastWriteTime(f)
-                                })
-                                .Where(f => f.LastWrite > _lastDemoScanTime)
-                                .ToList();
+                            var demoFiles = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly);
+                            var affectedMaps = new HashSet<string>();
 
-                            _lastDemoScanTime = DateTime.Now;
-
-                            var affectedMaps = newDemos
-                                .Select(f => ExtractMapNameFromDemo(f.Name))
-                                .Where(name => !string.IsNullOrEmpty(name))
-                                .Distinct()
-                                .ToList();
-
-                            foreach (var mapName in affectedMaps)
+                            foreach (var demoFile in demoFiles)
                             {
-                                var map = _allMaps.FirstOrDefault(m => 
-                                    string.Equals(m.Name, mapName, StringComparison.OrdinalIgnoreCase));
-                                if (map != null)
+                                if (ProcessDemoFile(demoFile, out var mapName))
                                 {
-                                    UpdateBestTimes(map);
+                                    affectedMaps.Add(mapName);
                                 }
                             }
 
                             SaveDemoCache();
+
+                            Dispatcher.Invoke(() =>
+                            {
+                                foreach (var mapName in affectedMaps)
+                                {
+                                    var map = _allMaps.FirstOrDefault(m => 
+                                        string.Equals(m.Name, mapName, StringComparison.OrdinalIgnoreCase));
+                                    if (map != null)
+                                    {
+                                        UpdateBestTimes(map);
+                                    }
+                                }
+                                RefreshMapTimesUI();
+                                LogSettingsMessage($"Updated {affectedMaps.Count} affected maps");
+                            });
                         }
                         catch (Exception ex)
                         {
-                            LogSettingsMessage($"Error processing new demos: {ex.Message}");
+                            LogSettingsMessage($"Error processing demos: {ex.Message}");
                         }
                     });
                 }
@@ -1262,6 +1196,91 @@ namespace DefragManager
                     LogSettingsMessage($"Error checking demo count: {ex.Message}");
                 }
             }
+        }
+
+        private bool ProcessDemoFile(string demoFile)
+        {
+            return ProcessDemoFile(demoFile, out _); // Игнорируем out параметр
+        }
+        
+        private bool ProcessDemoFile(string demoFile, out string mapName)
+        {
+            mapName = null;
+            try
+            {
+                var demoName = Path.GetFileNameWithoutExtension(demoFile);
+                mapName = ExtractMapNameFromDemo(demoName);
+                if (string.IsNullOrEmpty(mapName)) return false;
+
+                // Проверяем принадлежит ли демо текущему игроку
+                if (!string.IsNullOrEmpty(_playerName) && !IsPlayerDemo(demoName, _playerName))
+                {
+                    return false;
+                }
+
+                // Определяем физику
+                bool isVq3 = demoName.Contains("[vq3]", StringComparison.OrdinalIgnoreCase) || 
+                            demoName.Contains("[df.vq3]", StringComparison.OrdinalIgnoreCase) ||
+                            demoName.Contains("[mdf.vq3]", StringComparison.OrdinalIgnoreCase);
+                bool isCpm = demoName.Contains("[cpm]", StringComparison.OrdinalIgnoreCase) || 
+                            demoName.Contains("[df.cpm]", StringComparison.OrdinalIgnoreCase) ||
+                            demoName.Contains("[mdf.cpm]", StringComparison.OrdinalIgnoreCase);
+
+                if (!isVq3 && !isCpm) return false;
+
+                // Извлекаем время
+                var timePart = demoName.Split(']').LastOrDefault()?.Split('(').FirstOrDefault()?.Trim();
+                if (string.IsNullOrEmpty(timePart)) return false;
+
+                var physics = isVq3 ? "vq3" : "cpm";
+                var cacheKey = $"{mapName}|{physics}";
+
+                if (_demoCache.TryGetValue(cacheKey, out var existingRecord))
+                {
+                    var currentBest = physics == "vq3" ? existingRecord.VQ3Time : existingRecord.CPMTime;
+                    if (string.IsNullOrEmpty(currentBest) || CompareTimes(timePart, currentBest) < 0)
+                    {
+                        if (physics == "vq3")
+                            existingRecord.VQ3Time = timePart;
+                        else
+                            existingRecord.CPMTime = timePart;
+                        
+                        existingRecord.DemoFileName = Path.GetFileName(demoFile);
+                        existingRecord.LastUpdate = DateTime.Now;
+                        return true;
+                    }
+                }
+                else
+                {
+                    _demoCache[cacheKey] = new DemoRecord
+                    {
+                        VQ3Time = isVq3 ? timePart : "",
+                        CPMTime = isCpm ? timePart : "",
+                        DemoFileName = Path.GetFileName(demoFile),
+                        LastUpdate = DateTime.Now
+                    };
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error processing demo file {Path.GetFileName(demoFile)}: {ex.Message}");
+            }
+            return false;
+        }
+        private bool IsPlayerDemo(string demoName, string playerName)
+        {
+            if (string.IsNullOrEmpty(playerName)) return false;
+            
+            return demoName.EndsWith($"({playerName})", StringComparison.OrdinalIgnoreCase) ||
+                   demoName.Contains($"({playerName}.", StringComparison.OrdinalIgnoreCase) ||
+                   demoName.Contains($"({playerName})", StringComparison.OrdinalIgnoreCase);
+        }
+        private int CompareTimes(string time1, string time2)
+        {
+            if (string.IsNullOrEmpty(time1)) return 1;
+            if (string.IsNullOrEmpty(time2)) return -1;
+            return string.Compare(time1, time2, StringComparison.Ordinal);
         }
         private void InitializeDemoFolderState()
         {
