@@ -915,10 +915,16 @@ namespace DefragManager
         {
             if (map == null) return;
 
-            var vq3Key = $"{map.Name}|vq3";
-            var cpmKey = $"{map.Name}|cpm";
+            // Ищем ключи без учета регистра
+            var vq3Key = _demoCache.Keys.FirstOrDefault(k => 
+                k.StartsWith(map.Name + "|", StringComparison.OrdinalIgnoreCase) && 
+                k.EndsWith("|vq3"));
+            
+            var cpmKey = _demoCache.Keys.FirstOrDefault(k => 
+                k.StartsWith(map.Name + "|", StringComparison.OrdinalIgnoreCase) && 
+                k.EndsWith("|cpm"));
 
-            if (_demoCache.TryGetValue(vq3Key, out var vq3Record))
+            if (vq3Key != null && _demoCache.TryGetValue(vq3Key, out var vq3Record))
             {
                 map.VQ3Time = vq3Record.VQ3Time;
             }
@@ -927,7 +933,7 @@ namespace DefragManager
                 map.VQ3Time = "";
             }
 
-            if (_demoCache.TryGetValue(cpmKey, out var cpmRecord))
+            if (cpmKey != null && _demoCache.TryGetValue(cpmKey, out var cpmRecord))
             {
                 map.CPMTime = cpmRecord.CPMTime;
             }
@@ -945,7 +951,7 @@ namespace DefragManager
                 string bestTime = null;
                 string demoFile = null;
 
-                foreach (var demo in Directory.GetFiles("defrag/demos", $"*{mapName}*.dm_68"))
+                foreach (var demo in Directory.EnumerateFiles("defrag/demos", "*.dm_68", SearchOption.TopDirectoryOnly))
                 {
                     var demoName = Path.GetFileNameWithoutExtension(demo);
                     
@@ -957,7 +963,7 @@ namespace DefragManager
                     
                     var realMapName = ExtractMapNameFromDemo(demoName);
                     if (string.IsNullOrEmpty(realMapName)) continue;
-                    if (!string.Equals(realMapName, mapName, StringComparison.OrdinalIgnoreCase))
+                    if (!realMapName.Equals(mapName, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     bool isCorrectPhysics = false;
