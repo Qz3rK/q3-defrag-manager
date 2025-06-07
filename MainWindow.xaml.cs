@@ -892,6 +892,7 @@ namespace DefragManager
                     var timePart = demoName.Split(']').LastOrDefault()?.Split('(').FirstOrDefault()?.Trim();
                     if (string.IsNullOrEmpty(timePart)) continue;
                     if (demoName.Contains("[df.cpm]", StringComparison.OrdinalIgnoreCase) ||
+                        demoName.Contains("[mdf.cpm]", StringComparison.OrdinalIgnoreCase) ||
                         demoName.Contains("[cpm]", StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.IsNullOrEmpty(cpmTime) || string.Compare(timePart, cpmTime) < 0)
@@ -901,6 +902,7 @@ namespace DefragManager
                         }
                     }
                     else if (demoName.Contains("[df.vq3]", StringComparison.OrdinalIgnoreCase) ||
+                             demoName.Contains("[mdf.vq3]", StringComparison.OrdinalIgnoreCase) ||
                              demoName.Contains("[vq3]", StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.IsNullOrEmpty(vq3Time) || string.Compare(timePart, vq3Time) < 0)

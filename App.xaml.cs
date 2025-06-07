@@ -1,4 +1,5 @@
-﻿
+﻿// Copyright (c) 2025 Qz3rK 
+// License: MIT (https://opensource.org/licenses/MIT)
 using System;
 using System.Windows;
 using System.Windows.Media;
