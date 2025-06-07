@@ -63,7 +63,7 @@ namespace DefragManager
         private const int MaxRecentMaps = 10;
         private const int MaxMapCacheSize = 100000;
         private const int DemoCheckInterval = 15000;
-        private const int DemoCacheDuration = 300;
+        private const int DemoCacheDuration = 30000000;
         private const int SearchDelay = 500;
         private const int ThumbnailWidth = 200;
         private const int ThumbnailHeight = 100;
@@ -179,70 +179,117 @@ namespace DefragManager
             {
                 LogSettingsMessage("Window loading started");
 
-
+                // Загружаем настройки
                 LoadSettings();
                 LogSettingsMessage($"Player name: '{_playerName}'");
-
 
                 Dispatcher.Invoke(() =>
                 {
                     PlayerNameBox.Text = _playerName;
-                    if (string.IsNullOrEmpty(_playerName))
-                    {
-                        MessageBox.Show("Please enter your player name...",
-                                      "Player Name Required",
-                                      MessageBoxButton.OK,
-                                      MessageBoxImage.Information);
-                    }
                 });
 
-                if (Directory.Exists("defrag/demos"))
+                // Загружаем сохраненное количество демо (если есть)
+                if (File.Exists(Path.Combine("mgrdata", "democount.dat")))
                 {
-                    _lastDemoCount = Directory.GetFiles("defrag/demos", "*.dm_68", SearchOption.TopDirectoryOnly).Length;
-                    LogSettingsMessage($"Initial demo count: {_lastDemoCount}");
+                    _lastDemoCount = int.Parse(File.ReadAllText(Path.Combine("mgrdata", "democount.dat")));
+                    LogSettingsMessage($"Loaded demo count from cache: {_lastDemoCount}");
                 }
 
                 await Task.Run(() =>
                 {
+                    // Загружаем кеш карт
                     LogSettingsMessage("Loading maps cache...");
                     LoadCache();
 
+                    // Загружаем кеш демо
                     LogSettingsMessage("Loading demo cache...");
                     LoadDemoCache();
 
                     if (!string.IsNullOrEmpty(_playerName))
                     {
-                        LogSettingsMessage("Initializing map times...");
-                        InitializeMapTimes();
+                        // Проверяем текущее количество демо
+                        int currentDemoCount = 0;
+                        if (Directory.Exists("defrag/demos"))
+                        {
+                            currentDemoCount = Directory.GetFiles("defrag/demos", "*.dm_68", SearchOption.TopDirectoryOnly).Length;
+                            LogSettingsMessage($"Current demo count: {currentDemoCount}");
+                        }
 
-                        LogSettingsMessage("Cleaning up demo cache...");
+                        // Проверяем, нужно ли полное сканирование
+                        bool needFullScan = !File.Exists(Path.Combine("mgrdata", "democache.dat")) || 
+                                         (File.Exists(Path.Combine("mgrdata", "name.dat")) && 
+                                          File.ReadAllText(Path.Combine("mgrdata", "name.dat")).Trim() != _playerName) ||
+                                         (_lastDemoCount != currentDemoCount);
+
+                        if (needFullScan)
+                        {
+                            LogSettingsMessage("Performing full demo scan (first run, player name changed or demo count changed)...");
+                            InitializeMapTimes(); // Полное сканирование
+                            _lastDemoCount = currentDemoCount;
+                            File.WriteAllText(Path.Combine("mgrdata", "democount.dat"), currentDemoCount.ToString());
+                        }
+                        else
+                        {
+                            LogSettingsMessage("Using cached demo records...");
+                            // Обновляем время из кеша для всех карт
+                            foreach (var map in _allMaps)
+                            {
+                                UpdateBestTimes(map);
+                            }
+                        }
+
+                        // Сохраняем и очищаем кеш
+                        LogSettingsMessage("Saving and cleaning demo cache...");
+                        SaveDemoCache();
                         CleanupDemoCache();
+                    }
+                    else
+                    {
+                        LogSettingsMessage("Skipping demo processing - no player name set");
                     }
                 });
 
+                // Обновляем UI
                 LogSettingsMessage("Updating UI...");
                 UpdateFilteredMaps();
                 UpdateFavoritesState();
                 RefreshMapTimesUI();
 
+                // Запускаем фоновые задачи
                 LogSettingsMessage("Starting background tasks...");
                 _ = Task.Run(() => LoadAllThumbnails());
                 SetupTimer();
 
                 LogSettingsMessage("Window loaded successfully");
 
+                // Инициализируем счетчики посещения вкладок
                 _tabVisitCounts[AllMapsTab] = 0;
                 _tabVisitCounts[FavoritesTab] = 0;
                 _tabVisitCounts[RecentTab] = 0;
+
+                // Показываем предупреждение, если имя игрока не установлено
+                if (string.IsNullOrEmpty(_playerName))
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("Please enter your player name...",
+                                      "Player Name Required",
+                                      MessageBoxButton.OK,
+                                      MessageBoxImage.Information);
+                    });
+                }
             }
             catch (Exception ex)
             {
                 LogSettingsMessage($"Error in OnWindowLoaded: {ex.Message}");
-                MessageBox.Show($"Initialization failed: {ex.Message}",
-                              "Error",
-                              MessageBoxButton.OK,
-                              MessageBoxImage.Error);
-                Close();
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show($"Initialization failed: {ex.Message}",
+                                  "Error",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Error);
+                    Close();
+                });
             }
         }
         private void SaveAllDemoCache()
@@ -316,21 +363,31 @@ namespace DefragManager
                         var parts = line.Split('|');
                         if (parts.Length == 5)
                         {
+                            var mapName = parts[0];
+                            var vq3Time = parts[1];
+                            var cpmTime = parts[2];
                             var demoFileName = parts[3];
-                            var demoName = Path.GetFileNameWithoutExtension(demoFileName);
-                            var mapName = ExtractMapNameFromDemo(demoName);
+                            var lastUpdate = DateTime.FromBinary(long.Parse(parts[4]));
 
-                            if (!string.IsNullOrEmpty(mapName))
+                            if (!string.IsNullOrEmpty(vq3Time))
                             {
-                                var physics = demoName.Contains("[df.cpm]") ? "cpm" : "vq3";
-                                var cacheKey = $"{mapName}|{physics}";
-
-                                _demoCache[cacheKey] = new DemoRecord
+                                _demoCache[$"{mapName}|vq3"] = new DemoRecord
                                 {
-                                    VQ3Time = physics == "vq3" ? parts[1] : "",
-                                    CPMTime = physics == "cpm" ? parts[2] : "",
+                                    VQ3Time = vq3Time,
+                                    CPMTime = "",
                                     DemoFileName = demoFileName,
-                                    LastUpdate = DateTime.FromBinary(long.Parse(parts[4]))
+                                    LastUpdate = lastUpdate
+                                };
+                            }
+
+                            if (!string.IsNullOrEmpty(cpmTime))
+                            {
+                                _demoCache[$"{mapName}|cpm"] = new DemoRecord
+                                {
+                                    VQ3Time = "",
+                                    CPMTime = cpmTime,
+                                    DemoFileName = demoFileName,
+                                    LastUpdate = lastUpdate
                                 };
                             }
                         }
@@ -378,15 +435,22 @@ namespace DefragManager
                 var lines = new List<string>();
                 foreach (var kv in _demoCache)
                 {
-
-                    if (!string.IsNullOrEmpty(kv.Value.DemoFileName))
+                    var parts = kv.Key.Split('|');
+                    if (parts.Length == 2)
                     {
-                        lines.Add($"{kv.Key}|{kv.Value.VQ3Time}|{kv.Value.CPMTime}|{kv.Value.DemoFileName}|{kv.Value.LastUpdate.ToBinary()}");
+                        var mapName = parts[0];
+                        var physics = parts[1];
+                        var record = kv.Value;
+
+                        lines.Add($"{mapName}|{record.VQ3Time}|{record.CPMTime}|{record.DemoFileName}|{record.LastUpdate.ToBinary()}");
                     }
                 }
                 File.WriteAllLines(Path.Combine("mgrdata", "democache.dat"), lines);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error saving demo cache: {ex.Message}");
+            }
         }
         private void OnWindowClosed(object? sender, EventArgs e)
         {
@@ -394,16 +458,19 @@ namespace DefragManager
             {
                 LogSettingsMessage("Window closing started");
 
-
                 _playerName = PlayerNameBox?.Text?.Trim() ?? "";
                 if (!string.IsNullOrEmpty(_playerName))
                 {
                     File.WriteAllText(Path.Combine("mgrdata", "name.dat"), _playerName);
                 }
 
+                // Сохраняем текущее количество демо
+                if (_lastDemoCount >= 0)
+                {
+                    File.WriteAllText(Path.Combine("mgrdata", "democount.dat"), _lastDemoCount.ToString());
+                }
 
                 SaveAllDemoCache();
-
                 SaveThumbnailCache();
 
                 LogSettingsMessage("Window closed successfully");
@@ -421,24 +488,33 @@ namespace DefragManager
         {
             if (_isDisposed) return;
             _isDisposed = true;
-            _demoCheckTimer?.Stop();
-            _demoCheckTimer?.Dispose();
-            _thumbnailLoadingCts?.Cancel();
-            _thumbnailLoadingCts?.Dispose();
-            _thumbnailLoadSemaphore?.Dispose();
-            _searchCts?.Cancel();
-            _searchCts?.Dispose();
-            foreach (var map in _allMaps) map.Dispose();
-            _allMaps.Clear();
-            _filteredMaps.Clear();
-            _favorites.Clear();
-            _recentMaps.Clear();
-            _mapThumbnails.Clear();
-            SaveDemoCache();
-            SaveThumbnailCache();
-            foreach (var bitmap in _thumbnailCache.Values)
+            
+            try
             {
-                bitmap?.Freeze();
+                SaveDemoCount(); // Добавляем сохранение количества демо
+                _demoCheckTimer?.Stop();
+                _demoCheckTimer?.Dispose();
+                _thumbnailLoadingCts?.Cancel();
+                _thumbnailLoadingCts?.Dispose();
+                _thumbnailLoadSemaphore?.Dispose();
+                _searchCts?.Cancel();
+                _searchCts?.Dispose();
+                foreach (var map in _allMaps) map.Dispose();
+                _allMaps.Clear();
+                _filteredMaps.Clear();
+                _favorites.Clear();
+                _recentMaps.Clear();
+                _mapThumbnails.Clear();
+                SaveDemoCache();
+                SaveThumbnailCache();
+                foreach (var bitmap in _thumbnailCache.Values)
+                {
+                    bitmap?.Freeze();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error during cleanup: {ex.Message}");
             }
         }
         private void DemoCheckTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -497,11 +573,10 @@ namespace DefragManager
             {
                 LogSettingsMessage("SaveAllSettings started");
 
-
+                string oldPlayerName = _playerName;
                 _playerName = PlayerNameBox?.Text?.Trim() ?? "";
                 WindowTitle = _playerName;
                 _enginePath = EnginePathBox?.Text?.Trim() ?? "oDFe.x64.exe";
-
 
                 if (string.IsNullOrEmpty(_playerName))
                 {
@@ -517,12 +592,20 @@ namespace DefragManager
 
                 Directory.CreateDirectory("mgrdata");
 
-
                 File.WriteAllText(Path.Combine("mgrdata", "name.dat"), _playerName);
                 File.WriteAllText(Path.Combine("mgrdata", "engine.dat"), _enginePath);
 
-                CleanupDemoCache();
-
+                // Если имя игрока изменилось, обновляем кеш
+                if (!string.IsNullOrEmpty(oldPlayerName) && oldPlayerName != _playerName)
+                {
+                    LogSettingsMessage("Player name changed, updating demo cache");
+                    _demoCache.Clear();
+                    CleanupDemoCache();
+                    
+                    // При смене ника выполняем полное сканирование
+                    _lastDemoCount = -1;
+                    InitializeMapTimes();
+                }
 
                 LogSettingsMessage("Updating maps with new settings");
                 Task.Run(() =>
@@ -530,7 +613,6 @@ namespace DefragManager
                     foreach (var map in _allMaps) UpdateBestTimes(map);
                     Dispatcher.Invoke(() => UpdateFilteredMaps());
                 });
-
 
                 MessageBox.Show("Settings saved successfully!", "Success",
                               MessageBoxButton.OK, MessageBoxImage.Information);
@@ -853,25 +935,81 @@ namespace DefragManager
             bool hasVq3 = _demoCache.TryGetValue($"{map.Name}|vq3", out var vq3Record);
             bool hasCpm = _demoCache.TryGetValue($"{map.Name}|cpm", out var cpmRecord);
 
+            // Сначала устанавливаем значения из кеша
             map.VQ3Time = hasVq3 ? vq3Record.VQ3Time : "";
             map.CPMTime = hasCpm ? cpmRecord.CPMTime : "";
 
-            if ((!hasVq3 || (DateTime.Now - vq3Record.LastUpdate).TotalSeconds >= DemoCacheDuration) ||
-                (!hasCpm || (DateTime.Now - cpmRecord.LastUpdate).TotalSeconds >= DemoCacheDuration))
+            // Проверяем, нужно ли сканировать демо для этой карты
+            bool needScanVq3 = !hasVq3 || 
+                              (hasVq3 && 
+                               ((DateTime.Now - vq3Record.LastUpdate).TotalSeconds >= DemoCacheDuration ||
+                                (!string.IsNullOrEmpty(vq3Record.DemoFileName) && 
+                                 !File.Exists(Path.Combine("defrag/demos", vq3Record.DemoFileName)))));
+            
+            bool needScanCpm = !hasCpm || 
+                              (hasCpm && 
+                               ((DateTime.Now - cpmRecord.LastUpdate).TotalSeconds >= DemoCacheDuration ||
+                                (!string.IsNullOrEmpty(cpmRecord.DemoFileName) && 
+                                 !File.Exists(Path.Combine("defrag/demos", cpmRecord.DemoFileName)))));
+            
+            // Если нужно сканировать, запускаем сканирование
+            if (needScanVq3 || needScanCpm)
             {
                 ScanDemosForMap(map);
             }
         }
         private void InitializeMapTimes()
         {
-            foreach (var map in _allMaps)
+            try
             {
-                UpdateBestTimes(map);
+                // Проверяем наличие папки с демо
+                if (!Directory.Exists("defrag/demos"))
+                {
+                    LogSettingsMessage("Demos directory not found, skipping scan");
+                    return;
+                }
+
+                // Получаем текущее количество демо
+                int currentCount = Directory.GetFiles("defrag/demos", "*.dm_68", SearchOption.TopDirectoryOnly).Length;
+                
+                // Проверяем, нужно ли выполнять полное сканирование
+                bool needFullScan = !File.Exists(Path.Combine("mgrdata", "democache.dat")) || 
+                                  (File.Exists(Path.Combine("mgrdata", "name.dat")) && 
+                                  File.ReadAllText(Path.Combine("mgrdata", "name.dat")).Trim() != _playerName) ||
+                                  (_lastDemoCount != currentCount);
+
+                if (needFullScan)
+                {
+                    LogSettingsMessage("Performing full demo scan...");
+                    foreach (var map in _allMaps)
+                    {
+                        ScanDemosForMap(map);
+                    }
+                    _lastDemoCount = currentCount;
+                    SaveDemoCount();
+                }
+                else
+                {
+                    LogSettingsMessage("Using cached demo records...");
+                    foreach (var map in _allMaps)
+                    {
+                        UpdateBestTimes(map);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error in InitializeMapTimes: {ex.Message}");
             }
         }
         private void ScanDemosForMap(MapInfo map)
         {
-            if (!Directory.Exists("defrag/demos")) return;
+            if (!Directory.Exists("defrag/demos")) 
+            {
+                LogSettingsMessage("Demos directory not found, skipping scan");
+                return;
+            }
+
             try
             {
                 string vq3Time = null, cpmTime = null;
@@ -891,6 +1029,7 @@ namespace DefragManager
                         continue;
                     var timePart = demoName.Split(']').LastOrDefault()?.Split('(').FirstOrDefault()?.Trim();
                     if (string.IsNullOrEmpty(timePart)) continue;
+                    
                     if (demoName.Contains("[df.cpm]", StringComparison.OrdinalIgnoreCase) ||
                         demoName.Contains("[mdf.cpm]", StringComparison.OrdinalIgnoreCase) ||
                         demoName.Contains("[cpm]", StringComparison.OrdinalIgnoreCase))
@@ -941,7 +1080,7 @@ namespace DefragManager
             }
             catch (Exception ex)
             {
-                LogThumbnailMessage($"Error scanning demos for {map.Name}: {ex.Message}");
+                LogSettingsMessage($"Error scanning demos for {map.Name}: {ex.Message}");
             }
         }
         private void RefreshMapTimesUI()
@@ -989,7 +1128,7 @@ namespace DefragManager
             }
             catch { }
         }
-        private int _lastDemoCount = 0;
+        private int _lastDemoCount = -1;
         private DateTime _lastDemoCheckTime = DateTime.MinValue;
         private int _lastDemoFileCount = -1;
         private readonly object _demoCheckLock = new object();
@@ -1003,29 +1142,34 @@ namespace DefragManager
                     string demosPath = "defrag/demos";
                     if (!Directory.Exists(demosPath))
                     {
+                        // Если папка исчезла, сбрасываем счетчик
+                        if (_lastDemoCount != 0)
+                        {
+                            _lastDemoCount = 0;
+                            SaveDemoCount();
+                        }
                         LogSettingsMessage("Demos directory not found");
                         return;
                     }
 
                     int currentCount = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly).Length;
 
-
-                    if (currentCount == _lastDemoFileCount)
+                    if (currentCount == _lastDemoCount)
                     {
                         LogSettingsMessage($"Demo count unchanged: {currentCount} files");
                         return;
                     }
-                    LogSettingsMessage($"Demo count changed from {_lastDemoFileCount} to {currentCount}, updating...");
-                    _lastDemoFileCount = currentCount;
+
+                    LogSettingsMessage($"Demo count changed from {_lastDemoCount} to {currentCount}, updating...");
+                    _lastDemoCount = currentCount;
+                    SaveDemoCount();
                     _lastDemoScanTime = DateTime.Now;
 
                     Task.Run(() =>
                     {
                         try
                         {
-
                             var demoFiles = Directory.GetFiles(demosPath, "*.dm_68", SearchOption.TopDirectoryOnly);
-
 
                             var affectedMaps = demoFiles
                                 .Select(f => ExtractMapNameFromDemo(Path.GetFileNameWithoutExtension(f)))
@@ -1797,6 +1941,21 @@ namespace DefragManager
             catch (Exception ex)
             {
                 LogSettingsMessage($"Error updating favorites state: {ex.Message}");
+            }
+        }
+        private void SaveDemoCount()
+        {
+            try
+            {
+                if (_lastDemoCount >= 0)
+                {
+                    File.WriteAllText(Path.Combine("mgrdata", "democount.dat"), _lastDemoCount.ToString());
+                    LogSettingsMessage($"Saved demo count: {_lastDemoCount}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSettingsMessage($"Error saving demo count: {ex.Message}");
             }
         }
     }
