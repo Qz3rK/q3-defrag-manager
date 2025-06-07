@@ -34,9 +34,9 @@
     <Copyright>© 2025 Qz3rK. MIT License.</Copyright>
     <Product>DeFRaG Manager</Product>
     
-    <Version>1.1.1</Version>
-    <FileVersion>1.1.1</FileVersion>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <Version>1.1.2</Version>
+    <FileVersion>1.1.2</FileVersion>
+    <AssemblyVersion>1.1.2.0</AssemblyVersion>
 
   </PropertyGroup>
 

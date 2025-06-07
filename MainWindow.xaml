@@ -1810,7 +1810,7 @@
                                               UseLayoutRounding="True"
                                               SnapsToDevicePixels="False">
                                         <Run Text="Copyright © 2025 Qz3rK | "/>
-                                        <Hyperlink NavigateUri="https://github.com/Qz3rK" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Qz3rK</Hyperlink><Run Text=" | DeFRaG Manager (v1.1.1)"/>
+                                        <Hyperlink NavigateUri="https://github.com/Qz3rK" Foreground="#FF6FA8DC" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Qz3rK</Hyperlink><Run Text=" | DeFRaG Manager (v1.1.2)"/>
                                     </TextBlock>
                                 </StackPanel>
                             </ScrollViewer>
